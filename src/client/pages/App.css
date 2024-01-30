@@ -1,0 +1,30 @@
+.home-background {
+  background-image: url('../img/home.png');
+  background-size: cover;
+  background-position: center;
+  height: 100%;/* Full viewport height */
+  width: 100%;/* Full viewport width */
+}
+
+.rounded-edge-button {
+  background-color: #2C7AFE;/* Blue background */
+  color: white;/* White text */
+  border: none;/* No border */
+  padding: 30px 70px;/* Top/bottom and left/right padding */
+  border-radius: 15px;/* Rounded edges */
+  font-size: 20px;/* Font size */
+  font-weight: bold;
+  cursor: pointer;/* Cursor changes to pointer on hover */
+  transition: background-color 0.3s;/* Smooth background color transition on hover */
+}
+
+.positioned-button-signup {
+  position: fixed;
+  bottom: 250px;
+  right: 1220px;
+}
+
+.rounded-edge-button:hover {
+  background-color: darkblue; /* Slightly darker blue on hover */
+}
+

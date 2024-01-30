@@ -2,9 +2,11 @@ import Sidebar from "./sidebar";
 
 function RootLayout({ children }) {
   return (
-    <div className="flex flex-auto gap-5">
+    <div className="flex flex-auto">
       <Sidebar />
-      <main className="text-white  flex-1  mx-5 py-4">{children}</main>
+      <main className="flex-1 mx-1 py-1"> {/* Adjust margin-left here */}
+        {children}
+      </main>
     </div>
   );
 }
