@@ -2,5 +2,5 @@
 
 Branch : oil
 - oil@version0.1
-> edit sidebar, don't make right contents seek in the sidebar\n
-> add statements page
+1) edit sidebar, don't make right contents seek in the sidebar
+2) add statements page
