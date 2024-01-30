@@ -1,0 +1,8 @@
+/* Statements.css */
+
+@media (max-width: 920px) {
+    
+    .bot-filter {
+      margin-top: 10px; /* Adjust the margin to create space between items */
+    }
+  }
