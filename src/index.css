@@ -23,3 +23,24 @@
 .active {
   @apply bg-gray-700 text-slate-200;
 }
+
+/* Customizes the whole scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* Reduced width for the vertical scrollbar */
+}
+
+/* Customizes the scrollbar track */
+::-webkit-scrollbar-track {
+  background: transparent; /* Makes the track background transparent */
+}
+
+/* Customizes the scrollbar thumb (the moving part) */
+::-webkit-scrollbar-thumb {
+  /* background: transparent; Initially makes the thumb transparent */
+  border-radius: 4px; /* Optional: Applies rounding to the thumb for a more polished look on hover */
+}
+
+/* Changes the scrollbar thumb color on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #1E2226; /* Only shows the thumb on hover with a solid color */
+}
