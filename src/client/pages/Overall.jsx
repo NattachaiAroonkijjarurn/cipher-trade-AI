@@ -105,7 +105,7 @@ const Overall = () => {
 
       // Define the colors for the charts
       const sideColors = ["#2C7AFE", "#5a5c5d"];  // Blue and Grey
-      const buyColors = ["#4CAF50", "#5a5c5d"];    // Green and Grey
+      const buyColors = ["#07A66C", "#5a5c5d"];    // Green and Grey
       const sellColors = ["rgba(255, 77, 77, 0.8)", "#5a5c5d"];   // Red and Grey
 
       // Choose the colors based on the canvasId
@@ -462,7 +462,7 @@ const Overall = () => {
       });
 
       // Determine background color based on dailySumProfit value
-      const backgroundColors = dailySumProfit.map(profit => (profit < 0 ? 'rgba(255, 77, 77, 0.8)' : '#4CAF50'));
+      const backgroundColors = dailySumProfit.map(profit => (profit < 0 ? 'rgba(255, 77, 77, 0.8)' : '#07A66C'));
 
       return new Chart(
         document.getElementById(canvasId).getContext('2d'),
