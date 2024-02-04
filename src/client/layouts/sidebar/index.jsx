@@ -100,7 +100,7 @@ const Sidebar = () => {
         className="bg-[#1E2226] text-gray shadow-xl z-[999] max-w-[16rem] w-[16rem] overflow-hidden md:relative fixed h-screen"
       >
         <div>
-          <a href="/home" className="flex items-center gap-2.5 font-medium border-b py-3 border-gray-500  mx-3">
+          <a href="/" className="flex items-center gap-2.5 font-medium border-b py-3 border-gray-500  mx-3">
             <img
               src = {logo}
               width={45}

@@ -26,6 +26,8 @@ const Overall = () => {
   
     // Check Window Size for Responsive
     let isTabletMid = useMediaQuery({ query: "(max-width: 960px)" });
+    let isTabletMidChart  = useMediaQuery({ query: "(max-width: 1280px)" });
+    let isTabletMidWR = useMediaQuery({ query: "(max-width: 1160px)" });
 
 // =========================================================== Bot Filter + DropDown ===========================================================
     // useState to set state of DropDown and Bot Choosed
@@ -70,9 +72,9 @@ const Overall = () => {
     // Sample Data
     const demoData = [
       { id: 20000, currencyPair: "EURUSD", entryTime: 1706350594000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1706350594000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: 105.00 },
+      { id: 20001, currencyPair: "EURUSD", entryTime: 1706350594000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
       { id: 20002, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -9.78, wl: "Loss", balance: 101.47 },
+      { id: 20003, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
       { id: 20004, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
       { id: 20005, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
       { id: 20006, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
@@ -382,8 +384,11 @@ const Overall = () => {
             maintainAspectRatio: false,
             plugins: {
               legend: {
-                display: true,
+                display: false,
                 position: 'bottom',
+                labels: {
+                  color: 'white', // Set legend text color to white
+                },
               },
             },
             scales: {
@@ -397,27 +402,134 @@ const Overall = () => {
                 },
                 title: {
                   display: true,
-                  text: 'Date'
-                }
+                  text: 'Date',
+                  color: 'white', // Set x-axis title color to white
+                },
+                grid: {
+                  display: false,
+                  color: 'white', // Set x-axis grid lines color to white
+                },
+                ticks: {
+                  color: 'white', // Set x-axis tick color to white
+                },
               },
               y: {
                 beginAtZero: true,
                 title: {
                   display: true,
-                  text: 'Profit'
-                }
-              },
+                  text: 'Profit',
+                  color: 'white', // Set y-axis title color to white
+                },
+                grid: {
+                  color: '#5a5c5d', // Set y-axis grid lines color to white
+                },
+                ticks: {
+                  color: 'white', // Set y-axis tick color to white
+                },
+              }
             }
           }
         }
       );
     };
 
-    // Use the createDoughnutChart function in useEffect hooks
+    // Use the createLineChart function in useEffect hooks
     useEffect(() => {
       const PGLineChart = createLineChart('pg', profitGrowthData, 'Profit Growth');
       return () => PGLineChart.destroy();
     }, [profitGrowthData]);
+
+//  ========================================================== Bar Chart (PNL) ==========================================================
+    // Create a reusable function to create pnl bar chart
+    const createPNLChart = (canvasId, data, title) => {
+
+      let date = [];
+  
+      // Generate dates from startDate to endDate
+      const currentDate = moment(dateRange[0].startDate);
+      const endDate = moment(dateRange[0].endDate);
+
+      while (currentDate <= endDate) {
+        date.push(currentDate.format("YYYY-MM-DD"));
+        currentDate.add(1, 'days');
+      }
+
+      // Calculate daily sum of profit
+      const dailySumProfit = date.map(currentDate => {
+        const entriesOnDate = data.filter(entry => moment(entry.entryTime).format("YYYY-MM-DD") === currentDate);
+        const sumProfit = entriesOnDate.reduce((sum, entry) => sum + entry.profit, 0);
+        return sumProfit;
+      });
+
+      // Determine background color based on dailySumProfit value
+      const backgroundColors = dailySumProfit.map(profit => (profit < 0 ? 'rgba(255, 77, 77, 0.8)' : '#4CAF50'));
+
+      return new Chart(
+        document.getElementById(canvasId).getContext('2d'),
+        {
+          type: 'bar', // Change the chart type to 'bar'
+          data: {
+            labels: date,
+            datasets: [{
+              label: 'PNL',
+              data: dailySumProfit,
+              backgroundColor: backgroundColors, // Bar color (you can choose a different color)
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  unit: 'day',
+                  displayFormats: {
+                    day: 'DD-MM'
+                  }
+                },
+                title: {
+                  display: true,
+                  text: 'Date',
+                  color: 'white',
+                },
+                grid: {
+                  display: false,
+                  color: 'white',
+                },
+                ticks: {
+                  color: 'white',
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'PNL',
+                  color: 'white',
+                },
+                grid: {
+                  color: '#5a5c5d',
+                },
+                ticks: {
+                  color: 'white',
+                },
+              }
+            }
+          }
+        }
+      );
+    };
+
+    // Use the createPNLChart function in useEffect hooks
+    useEffect(() => {
+      const pnlChart = createPNLChart('pnl', chartData, 'PNL');
+      return () => pnlChart.destroy();
+    }, [chartData]);
 
 // =============================================================================================================================
 
@@ -487,20 +599,20 @@ const Overall = () => {
       {/* Static Contanier */}
       <div className='statitic-container flex flex-col my-5 gap-5 w-full'>
         {/* W/L and Profit Growth */}
-        <div className='winrate-pg flex items-center gap-5 w-full'>
+        <div className={isTabletMidChart ? 'winrate-pg flex flex-col items-center gap-5 w-full' : 'winrate-pg flex items-center gap-5 w-full'}>
           {/* W/L */}
-          <div className='winrate-container flex flex-col bg-[#2a2c2d] w-6/12 rounded-lg'>
-            <span className='pl-10 pt-5 pb-2 text-2xl font-bold'>Winrate</span>
-            <div className='overall-container flex gap-20 px-10 pb-5 w-full justify-center'>
-                <div className='b/s-container w-3/12 h-[37vh]'>
+          <div className={isTabletMidChart ? 'winrate-container flex flex-col bg-[#1E2226] w-full rounded-lg' : 'winrate-container flex flex-col bg-[#1E2226] w-6/12 rounded-lg'}>
+            <span className={isTabletMidChart ? 'pl-10 pt-5 pb-5 text-2xl font-bold' : 'pl-10 pt-5 pb-2 text-2xl font-bold'}>Winrate</span>
+            <div className={isTabletMidWR ? 'overall-container flex flex-col gap-10 px-10 pb-5 w-full justify-center' : 'overall-container flex gap-20 px-10 pb-5 w-full justify-center'}>
+                <div className={isTabletMidChart ? isTabletMidWR ? 'b/s-container w-full h-[50vh]' : 'b/s-container w-4/12 h-[37vh]' : 'b/s-container w-3/12 h-[37vh]'}>
                   {/* Side Doughnut Chart */}
                   <canvas id='b/s' className='z-99'></canvas> 
                 </div>
-                <div className='buy-container w-3/12 h-[37vh]'>
+                <div className={isTabletMidChart ? isTabletMidWR ? 'buy-container w-full h-[50vh]' : 'buy-container w-4/12 h-[37vh]' : 'buy-container w-3/12 h-[37vh]'}>
                   {/* Buy Doughnut Chart */}
                   <canvas id='buy' className='z-99'></canvas> 
                 </div>
-                <div className='sell-container w-3/12 h-[37vh]'>
+                <div className={isTabletMidChart ? isTabletMidWR ? 'sell-container w-full h-[50vh]' : 'sell-container w-4/12 h-[37vh]' : 'sell-container w-3/12 h-[37vh]'}>
                   {/* Sell Doughnut Chart */}
                   <canvas id='sell' className='z-99'></canvas> 
                 </div>
@@ -508,7 +620,7 @@ const Overall = () => {
           </div>
 
           {/* Profit Growth */}
-          <div className='pg-container bg-[#2a2c2d] p-6 w-6/12 rounded-lg'>
+          <div className={`pg-container bg-[#1E2226] p-6 ${isTabletMidChart ? 'w-full' : 'w-6/12'} rounded-lg`}>
             <span className='pl-5 text-2xl font-bold w-full'>Profit Growth</span>
             <div className='px-5 pt-5 w-full h-[37vh]'>
               <canvas id='pg'></canvas> 
@@ -517,8 +629,11 @@ const Overall = () => {
         </div>
         
         {/* PNL */}
-        <div className='pnl-container'>
-
+        <div className='pnl-container px-10 flex flex-col w-full bg-[#1E2226] rounded-lg'>
+          <span className='pt-7 text-2xl font-bold w-full'>PNL</span>
+          <div className='pnl-chart px-5 pt-5 w-full h-[50vh]'>
+            <canvas id='pnl'></canvas>
+          </div>
         </div>
       </div>
     </div>
