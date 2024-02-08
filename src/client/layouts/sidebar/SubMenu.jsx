@@ -24,7 +24,7 @@ const SubMenu = ({ data }) => {
                 height: 0,
               }
         }
-        className="flex h-0 flex-col pl-14 text-[0.8rem] font-normal overflow-hidden"
+        className="flex h-0 flex-col pl-14 text-[0.8rem] font-normal overflow-hidden "
       >
         {data.menus?.map((menu) => (
           <li key={menu}>

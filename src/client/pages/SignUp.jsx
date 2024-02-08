@@ -67,7 +67,7 @@ const SignUp = () => {
           <h1 className="mt-2.5 ml-2 font-bold text-white">CipherTrade AI</h1>
         </div>
         <h1
-          className="text-lg font-bold text-center p-1 mb-0 mtext-white"
+          className="text-lg font-bold text-center p-1 mb-0 text-white"
           style={{ color: "#2C7AFE" }}
         >
           Sign Up
