@@ -1,0 +1,32 @@
+/* Entering animation */
+.modal-enter, .modal-exit-active {
+    opacity: 0;
+    transform: translateX(-50px); /* Move to left for exit */
+}
+.modal-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 300ms, transform 300ms;
+}
+
+/* Exiting animation */
+.modal-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+.modal-exit-active {
+    opacity: 0;
+    transform: translateX(50px); /* Move to right for exit */
+    transition: opacity 300ms, transform 300ms;
+}
+
+.slid-up {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.slid-up-active {
+    transform: translateY(0);
+    opacity: 1;
+    transition: opacity 300ms, transform 300ms;
+}

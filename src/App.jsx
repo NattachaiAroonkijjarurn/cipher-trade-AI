@@ -10,12 +10,16 @@ import Statements from "./client/pages/Statements";
 import Overall from "./client/pages/Overall";
 import Support from "./client/pages/Support";
 import Profile from "./client/pages/Profile/Profile";
+import SignUp from "./client/pages/SignUp";
+import Authentication from "./client/pages/Authentication";
 
 const App = () => {
   return (
     <RootLayout>
       <Routes>
-        <Route path="/" element={<Home />} /> 
+        <Route path="/" element={<Home />}/> 
+        <Route path="/signup" element ={<SignUp />} />
+        <Route path="/authentication" element = {<Authentication />} />
         <Route path="/aiTradingBot" element={<AITradingBot />} />
         <Route path="/wallets" element={<Wallets />} />
         <Route path="/statements" element={<Statements />} />
