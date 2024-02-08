@@ -1,0 +1,12 @@
+
+[
+    {   
+        "fname": "Waraporn" ,
+        "lname": "Janseenual",
+        "profileImage": "/img/user-profile.jpg",
+        "email": "nattachai.aroonkij@gmail.com",
+        "password": "12345678",
+        "phone": "095-XXX-XXXX",
+        "authen": false
+    }
+]

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
+import { useMediaQuery } from "react-responsive";
+import { NavLink, useLocation, useRoutes } from "react-router-dom";
 import './App.css'
 
 // * React icons
@@ -8,8 +10,6 @@ import { MdHeadphones } from "react-icons/md";
 import { MdAnalytics } from "react-icons/md";
 import { FaWallet } from "react-icons/fa6";
 import { RiBuilding3Line } from "react-icons/ri";
-import { useMediaQuery } from "react-responsive";
-import { NavLink, useLocation, useRoutes } from "react-router-dom";
 import { RiRobot2Fill } from "react-icons/ri";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiFileList3Fill } from "react-icons/ri";
@@ -18,6 +18,8 @@ import logo from "../../img/logo.png"
 
 const Sidebar = () => {
   let isTabletMid = useMediaQuery({ query: "(max-width: 768px)" });
+  let isTabletHight = useMediaQuery({ query: "(max-height: 540px"})
+  let isTabletHightProfile = useMediaQuery({ query: "(max-height: 320px"})
   const [open, setOpen] = useState(isTabletMid ? false : true);
   const sidebarRef = useRef();
   let { pathname } = useLocation();
@@ -151,8 +153,7 @@ const Sidebar = () => {
 
           <div className="flex-1 text-sm z-50  max-h-60 mt-auto  whitespace-pre   w-full  font-medium  text-[#FFFFFF] absolute bottom-20">
             {open && (
-                
-                  <div className="flex border-y border-slate-300 p-4 items-center justify-between">
+                  <div className={isTabletHight ? "hidden" : "flex border-y border-slate-300 p-4 items-center justify-between"}>
                     <div>
                       <p>Commission</p>
                       <small>Total : 5000</small>
@@ -161,12 +162,11 @@ const Sidebar = () => {
                       Pay
                     </p>
                   </div>
-                
               )}
               <div >
                 <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100  text-[#2C7AFE]">
                   <li>
-                    <NavLink to={"/analytics"} className="link hover:bg-blue-700 hover:text-white rounded">
+                    <NavLink to={"/profile/#my-profile"} className="link hover:bg-blue-700 hover:text-white rounded">
                       <BsPersonCircle size={23} className="min-w-max"/>
                       Profile
                     </NavLink>

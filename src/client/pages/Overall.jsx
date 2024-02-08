@@ -71,13 +71,13 @@ const Overall = () => {
 
     // Sample Data
     const demoData = [
-      { id: 20000, currencyPair: "EURUSD", entryTime: 1706350594000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1706350594000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
-      { id: 20002, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
-      { id: 20004, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
-      { id: 20005, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
-      { id: 20006, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
+      { id: 20000, currencyPair: "EURUSD", entryTime: 1706650594000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
+      { id: 20001, currencyPair: "EURUSD", entryTime: 1706650594000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
+      { id: 20002, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
+      { id: 20003, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
+      { id: 20004, currencyPair: "EURUSD", entryTime: 1706903347000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
+      { id: 20005, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
+      { id: 20006, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
     ];
 
     // useState for keeping Chart Data

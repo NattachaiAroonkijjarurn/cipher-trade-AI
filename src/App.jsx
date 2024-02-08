@@ -1,13 +1,15 @@
 import { Route, Routes } from "react-router-dom";
 import RootLayout from "./client/layouts/RootLayout";
 
+
+// Pages
 import Home from "./client/pages/Home"
 import AITradingBot from "./client/pages/AITradingBot";
 import Wallets from "./client/pages/Wallets";
 import Statements from "./client/pages/Statements";
 import Overall from "./client/pages/Overall";
 import Support from "./client/pages/Support";
-import Profile from "./client/pages/Profile";
+import Profile from "./client/pages/Profile/Profile";
 
 const App = () => {
   return (

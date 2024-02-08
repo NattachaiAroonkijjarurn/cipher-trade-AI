@@ -8,7 +8,7 @@ import "../layouts/layoutsCss/DropDown.css"
 
 // DatePicker
 import { DateRangePicker } from 'react-date-range';
-import { subDays } from 'date-fns';
+import { subDays, set } from 'date-fns';
 import moment from 'moment'; // for change the format of date
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -67,7 +67,7 @@ const Statements = () => {
     // useState to set Start and End Date
     const [dateRange, setDateRange] = useState([
       {
-        startDate: subDays(new Date(), 7),
+        startDate: set(subDays(new Date(), 7), { hours: 0, minutes: 0, seconds: 0 }),
         endDate: new Date(),
         key: 'selection'
       }
@@ -84,13 +84,13 @@ const Statements = () => {
 // =========================================================== Order Table ===========================================================
     // Sample Order Data
     const demoOrderData = [
-      { id: 20000, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20002, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20004, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20005, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20006, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20000, currencyPair: "EURUSD", entryTime: 1706603347000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20001, currencyPair: "EURUSD", entryTime: 1706603347000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20002, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20003, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20004, currencyPair: "EURUSD", entryTime: 1706903347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20005, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+      { id: 20006, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
     ];
 
     // useState for keeping Order Data
@@ -113,11 +113,11 @@ const Statements = () => {
 // =========================================================== Position Table ===========================================================
         // Sample Order Data
         const demoPosData = [
-          { id: 30000, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30001, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30002, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30003, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30004, currencyPair: "EURUSD", entryTime: 1706503347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+          { id: 30000, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+          { id: 30001, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
+          { id: 30002, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+          { id: 30003, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
+          { id: 30004, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
         ];
 
         // useState for keeping Order Data
@@ -125,7 +125,6 @@ const Statements = () => {
 
         // Update the Table when the date or bot filter change
         useEffect(() => {
-          console.log(dateRange)
           if(botPick === "All") {
             let fetchData = demoPosData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
             fetchData = fetchData.map(data => ({ ...data, entryTime: new Date(data.entryTime) }));
@@ -142,7 +141,7 @@ const Statements = () => {
 
     return (
       <div className="page-container flex flex-col mt-7 ml-auto">
-        <h1 className="titlle text-2xl">Orders</h1>
+        <h1 className="title text-2xl">Orders</h1>
 
         {/* Type of Statements */}
         <LayoutGroup transition={{ duration: 0.5 }}>
@@ -233,23 +232,23 @@ const Statements = () => {
                 <thead className="text-slate-500">
                   {isTabletMid
                     ? <tr className="border-y-2 border-slate-500">
-                    <th className="py-2">ID</th>
-                    <th>Currency Pair</th>
-                    <th>Bot</th>
-                    <th>Side</th>
-                    <th>Profit</th>
-                  </tr>
+                        <th className="py-2">ID</th>
+                        <th>Currency Pair</th>
+                        <th>Bot</th>
+                        <th>Side</th>
+                        <th>Profit</th>
+                      </tr>
                     : <tr className="border-y-2 border-slate-500">
-                    <th className="py-2">ID</th>
-                    <th>Currency Pair</th>
-                    <th>Entry Time</th>
-                    <th>Exit Time</th>
-                    <th>Bot</th>
-                    <th>Side</th>
-                    <th>Price</th>
-                    <th>Lot</th>
-                    <th>Profit</th>
-                  </tr>
+                        <th className="py-2">ID</th>
+                        <th>Currency Pair</th>
+                        <th>Entry Time</th>
+                        <th>Exit Time</th>
+                        <th>Bot</th>
+                        <th>Side</th>
+                        <th>Price</th>
+                        <th>Lot</th>
+                        <th>Profit</th>
+                      </tr>
                   }
                 </thead>
                 <tbody>
@@ -259,7 +258,7 @@ const Statements = () => {
                           <td className="pt-2">{row.id}</td>
                           <td>{row.currencyPair}</td>
                           <td>{row.bot}</td>
-                          <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
+                          <td className={row.side === 'Buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
                           <td>{row.profit}</td>
                         </tr>
                       ))
@@ -270,7 +269,7 @@ const Statements = () => {
                           <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
                           <td>{row.exitTime}</td>
                           <td>{row.bot}</td>
-                          <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
+                          <td className={row.side === 'Buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
                           <td>{row.price}</td>
                           <td>{row.lot}</td>
                           <td>{row.profit}</td>
@@ -287,19 +286,17 @@ const Statements = () => {
                     <th className="py-2">ID</th>
                     <th>Currency Pair</th>
                     <th>Bot</th>
+                    <th>Entry Time</th>
                     <th>Side</th>
-                    <th>Profit</th>
                   </tr>
                     : <tr className="border-y-2 border-slate-500">
                     <th className="py-2">ID</th>
                     <th>Currency Pair</th>
                     <th>Entry Time</th>
-                    <th>Exit Time</th>
                     <th>Bot</th>
                     <th>Side</th>
                     <th>Price</th>
                     <th>Lot</th>
-                    <th>Profit</th>
                   </tr>
                   }
                 </thead>
@@ -310,8 +307,8 @@ const Statements = () => {
                           <td className="pt-2">{row.id}</td>
                           <td>{row.currencyPair}</td>
                           <td>{row.bot}</td>
+                          <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
                           <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
-                          <td>{row.profit}</td>
                         </tr>
                       ))
                     : tablePosData.map((row) => (
@@ -319,12 +316,10 @@ const Statements = () => {
                           <td className="pt-2">{row.id}</td>
                           <td>{row.currencyPair}</td>
                           <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
-                          <td>{row.exitTime}</td>
                           <td>{row.bot}</td>
                           <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
                           <td>{row.price}</td>
                           <td>{row.lot}</td>
-                          <td>{row.profit}</td>
                         </tr>
                       ))}
                 </tbody>
