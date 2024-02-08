@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import './App.css'
 
 // * React icons
 import { MdHeadphones } from "react-icons/md";
 import { MdAnalytics } from "react-icons/md";
 import { FaWallet } from "react-icons/fa6";
 import { RiBuilding3Line } from "react-icons/ri";
-import { useMediaQuery } from "react-responsive";
-import { NavLink, useLocation, useRoutes } from "react-router-dom";
 import { RiRobot2Fill } from "react-icons/ri";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiFileList3Fill } from "react-icons/ri";
@@ -18,6 +15,8 @@ import logo from "../../img/logo.png"
 
 const Sidebar = () => {
   let isTabletMid = useMediaQuery({ query: "(max-width: 768px)" });
+  let isTabletHight = useMediaQuery({ query: "(max-height: 540px"})
+  let isTabletHightProfile = useMediaQuery({ query: "(max-height: 320px"})
   const [open, setOpen] = useState(isTabletMid ? false : true);
   const [showCommission, setShowCommission] = useState(true);
   const sidebarRef = useRef();
@@ -29,34 +28,7 @@ const Sidebar = () => {
     } else {
       setOpen(true);
     }
-  }, [isTabletMid, pathname]);
-
-  const handleResize = () => {
-    if (window.innerHeight < 550) {
-      setShowCommission(false);
-    } else {
-      setShowCommission(true);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Call it initially to set the state based on current viewport height
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const handleMouseEnter = () => {
-    if (!isTabletMid) {
-      setOpen(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isTabletMid) {
-      setOpen(false);
-    }
-  };
+  }, [isTabletMid]);
 
   useEffect(() => {
     isTabletMid && setOpen(false);
@@ -113,10 +85,12 @@ const Sidebar = () => {
         variants={Nav_animation}
         initial={{ x: isTabletMid ? -250 : 0 }}
         animate={open ? "open" : "closed"}
-        className="bg-[#1E2226] text-gray z-[999] max-w-[16rem] w-[16rem] overflow-y-auto md:relative fixed h-screen hide-scrollbar fixedSidebar static "
+        className=" bg-[#1E2226] text-gray shadow-xl z-[999] max-w-[16rem]  w-[16rem] 
+            overflow-hidden md:relative fixed
+         h-screen "
       >
         <div>
-          <a href="/home" className="flex items-center gap-2.5 font-medium border-b py-3 border-gray-500  mx-3">
+          <a href="/" className="flex items-center gap-2.5 font-medium border-b py-3 border-gray-500  mx-3">
             <img
               src = {logo}
               width={45}
@@ -127,16 +101,16 @@ const Sidebar = () => {
           
         </div>
 
-        <div className="flex flex-col  h-full relative fixed">
-          <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-3 font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100 text-[#2C7AFE] ">
-            <li className="flex-1">
-                <NavLink to={"/aiTradingBot"} className="link hover:bg-blue-700 hover:text-white rounded">
-                <RiRobot2Fill size={23} className="min-w-max group-hover:scale-110" />
+        <div className="flex flex-col  h-full relative ">
+          <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100   md:h-[68%] h-[70%] text-[#2C7AFE]">
+            <li>
+              <NavLink to={"/aiTradingBot"} className="link">
+                <RiRobot2Fill size={23} className="min-w-max" />
                 Al Trading Bot
               </NavLink>
             </li>
-            <li className="flex-1">
-              <NavLink to={"/wallets"} className="link hover:bg-blue-700 hover:text-white rounded">
+            <li>
+              <NavLink to={"/wallets"} className="link">
                 <FaWallet size={23} className="min-w-max" />
                 Wallets
               </NavLink>
@@ -165,22 +139,24 @@ const Sidebar = () => {
 
           {/* px-2.5 text-[0.9rem] py-5 flex flex-col gap-1   scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100 */}
 
-          <div className="flex-1 text-sm z-50  mt-auto  whitespace-pre   w-full  font-medium  text-[#FFFFFF] absolute bottom-16">
-          {open && showCommission && (
-            <div className="flex border-y border-slate-300 p-4 items-center justify-between">
-              <div>
-                <p>Commission</p>
-                <small>Total: 5000</small>
-              </div>
-              <p className="text-[#2C7AFE] py-1.5 px-3 text-xs bg-teal-50 rounded-xl">
-                Pay
-              </p>
-            </div>
-          )}
+          <div className="flex-1 text-sm z-50  max-h-60 mt-auto  whitespace-pre   w-full  font-medium  text-[#FFFFFF] absolute bottom-20">
+            {open && (
+                
+                  <div className="flex border-y border-slate-300 p-4 items-center justify-between">
+                    <div>
+                      <p>Commission</p>
+                      <small>Total : 5000</small>
+                    </div>
+                    <p className="text-[#2C7AFE] py-1.5 px-3 text-xs bg-teal-50 rounded-xl">
+                      Pay
+                    </p>
+                  </div>
+                
+              )}
               <div >
                 <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100  text-[#2C7AFE] bg-[#1E2226]">
                   <li>
-                    <NavLink to={"/analytics"} className="link hover:bg-blue-700 hover:text-white rounded">
+                    <NavLink to={"/analytics"} className="link">
                       <BsPersonCircle size={23} className="min-w-max"/>
                       Profile
                     </NavLink>
