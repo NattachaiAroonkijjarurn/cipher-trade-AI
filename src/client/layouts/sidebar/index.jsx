@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
+import { useMediaQuery } from "react-responsive";
+import { NavLink, useLocation, useRoutes } from "react-router-dom";
+import './App.css'
 
 // * React icons
 import { MdHeadphones } from "react-icons/md";
@@ -18,7 +21,6 @@ const Sidebar = () => {
   let isTabletHight = useMediaQuery({ query: "(max-height: 540px"})
   let isTabletHightProfile = useMediaQuery({ query: "(max-height: 320px"})
   const [open, setOpen] = useState(isTabletMid ? false : true);
-  const [showCommission, setShowCommission] = useState(true);
   const sidebarRef = useRef();
   let { pathname } = useLocation();
 
@@ -28,7 +30,19 @@ const Sidebar = () => {
     } else {
       setOpen(true);
     }
-  }, [isTabletMid]);
+  }, [isTabletMid, pathname]);
+
+  const handleMouseEnter = () => {
+    if (!isTabletMid) {
+      setOpen(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isTabletMid) {
+      setOpen(false);
+    }
+  };
 
   useEffect(() => {
     isTabletMid && setOpen(false);
@@ -85,9 +99,7 @@ const Sidebar = () => {
         variants={Nav_animation}
         initial={{ x: isTabletMid ? -250 : 0 }}
         animate={open ? "open" : "closed"}
-        className=" bg-[#1E2226] text-gray shadow-xl z-[999] max-w-[16rem]  w-[16rem] 
-            overflow-hidden md:relative fixed
-         h-screen "
+        className="bg-[#1E2226] text-gray shadow-xl z-[999] max-w-[16rem] w-[16rem] overflow-hidden md:relative fixed h-screen"
       >
         <div>
           <a href="/" className="flex items-center gap-2.5 font-medium border-b py-3 border-gray-500  mx-3">
@@ -102,15 +114,15 @@ const Sidebar = () => {
         </div>
 
         <div className="flex flex-col  h-full relative ">
-          <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100   md:h-[68%] h-[70%] text-[#2C7AFE]">
+          <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-3 font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100   md:h-[68%] h-[70%] text-[#2C7AFE]">
             <li>
-              <NavLink to={"/aiTradingBot"} className="link">
-                <RiRobot2Fill size={23} className="min-w-max" />
+                <NavLink to={"/aiTradingBot"} className="link hover:bg-blue-700 hover:text-white rounded">
+                <RiRobot2Fill size={23} className="min-w-max group-hover:scale-110" />
                 Al Trading Bot
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/wallets"} className="link">
+              <NavLink to={"/wallets"} className="link hover:bg-blue-700 hover:text-white rounded">
                 <FaWallet size={23} className="min-w-max" />
                 Wallets
               </NavLink>
@@ -141,8 +153,7 @@ const Sidebar = () => {
 
           <div className="flex-1 text-sm z-50  max-h-60 mt-auto  whitespace-pre   w-full  font-medium  text-[#FFFFFF] absolute bottom-20">
             {open && (
-                
-                  <div className="flex border-y border-slate-300 p-4 items-center justify-between">
+                  <div className={isTabletHight ? "hidden" : "flex border-y border-slate-300 p-4 items-center justify-between"}>
                     <div>
                       <p>Commission</p>
                       <small>Total : 5000</small>
@@ -151,12 +162,11 @@ const Sidebar = () => {
                       Pay
                     </p>
                   </div>
-                
               )}
               <div >
-                <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100  text-[#2C7AFE] bg-[#1E2226]">
+                <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100  text-[#2C7AFE]">
                   <li>
-                    <NavLink to={"/analytics"} className="link">
+                    <NavLink to={"/profile/#my-profile"} className="link hover:bg-blue-700 hover:text-white rounded">
                       <BsPersonCircle size={23} className="min-w-max"/>
                       Profile
                     </NavLink>
