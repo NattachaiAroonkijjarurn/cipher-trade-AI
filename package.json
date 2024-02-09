@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "react-scripts start",
+    "start": "set PORT=3000 && react-scripts start",
     "dev:server": "nodemon src/server/index.js"
   },
   "dependencies": {
