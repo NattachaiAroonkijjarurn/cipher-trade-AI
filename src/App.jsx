@@ -12,6 +12,7 @@ import Support from "./client/pages/Support";
 import Profile from "./client/pages/Profile/Profile";
 import SignUp from "./client/pages/SignUp";
 import Authentication from "./client/pages/Authentication";
+import Login from "./client/pages/Login";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />}/> 
         <Route path="/signup" element ={<SignUp />} />
+        <Route path="/login" element = {<Login />} />
         <Route path="/authentication" element = {<Authentication />} />
         <Route path="/aiTradingBot" element={<AITradingBot />} />
         <Route path="/wallets" element={<Wallets />} />

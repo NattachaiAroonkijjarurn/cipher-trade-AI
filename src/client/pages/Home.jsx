@@ -11,10 +11,11 @@ import backgroundImage from '../img/home.png';
 const Home = () => {
   let navigate = useNavigate();
 
-  const handleSignInClick = () => {
+  const handleSignUpClick = () => {
     navigate('/signup');
   };
 
+<<<<<<< HEAD
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -40,18 +41,31 @@ const Home = () => {
       navigate('/aiTradingBot');
     }
   }, [isLoggedIn, navigate]);
+=======
+  const handleLogin = () => {
+    navigate('/login')
+  }
+>>>>>>> fa9b120fda9430e6d0069ad86e94d810b43f80b6
 
   return (
     <div 
       className="h-screen w-full bg-cover flex relative" // Added 'relative' here
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <button 
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded focus:outline-none focus:shadow-outline absolute top-5 right-5" // Adjusted positioning classes
-        onClick={handleSignInClick}
-      >
-        Sign Up
-      </button>
+      <div className='flex-1 justify-between text-right mt-2 mr-3'>
+        <button
+          className='bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-sm font-medium py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline mr-3'
+          onClick={handleLogin}
+        >
+          Login
+        </button>
+        <button 
+          className="bg-white hover:bg-zinc-300 active:bg-zinc-400 text-black text-sm font-medium py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline" // Adjusted positioning classes
+          onClick={handleSignUpClick}
+        >
+          Sign Up
+        </button>
+      </div>
     </div>
   );
 };
