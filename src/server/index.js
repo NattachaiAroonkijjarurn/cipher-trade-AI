@@ -1,13 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import dotenv from 'dotenv'
 
 // Database
 import connectDB from './db.js'
-import mongoose from 'mongoose';
 
 // API Routes
 import router from './routes/api.js';
@@ -19,20 +17,14 @@ import { dirname } from 'path';
 dotenv.config();
 
 // Connet to Database
-connectDB;
-
-// Create User schema
-const User = mongoose.model('account_user', {
-  username: String,
-  password: String,
-});
+connectDB();
 
 const PORT = process.env.PORT;
 const salty = process.env.SALT
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({ secret: salty, resave: true, saveUninitialized: true }));
 

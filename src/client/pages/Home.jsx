@@ -1,5 +1,11 @@
-import React from 'react';
+// React
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+// Axios
+import axios from 'axios';
+
+// Image
 import backgroundImage from '../img/home.png';
 
 const Home = () => {
@@ -8,6 +14,32 @@ const Home = () => {
   const handleSignInClick = () => {
     navigate('/signup');
   };
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('/api/auth-user');
+        // Assuming the backend sends a response with a status of 200 if the user is logged in
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        // If there is an error or the status is not 200, the user is not logged in
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  // Redirect to another page if logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/aiTradingBot');
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div 
