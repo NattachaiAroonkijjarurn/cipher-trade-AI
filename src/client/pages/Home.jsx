@@ -11,41 +11,30 @@ import backgroundImage from '../img/home.png';
 const Home = () => {
   let navigate = useNavigate();
 
-  const handleSignUpClick = () => {
-    navigate('/signup');
-  };
-
-<<<<<<< HEAD
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await axios.get('/api/auth-user');
+        const response = await axios.get('http://localhost:5000/api/auth-user', {
+          withCredentials: true,
+        });
         // Assuming the backend sends a response with a status of 200 if the user is logged in
         if (response.status === 200) {
-          setIsLoggedIn(true);
+          navigate('/aiTradingBot')
         }
       } catch (error) {
-        // If there is an error or the status is not 200, the user is not logged in
-        setIsLoggedIn(false);
       }
     };
 
     checkLoginStatus();
-  }, []);
+  }, [location]);
 
-  // Redirect to another page if logged in
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/aiTradingBot');
-    }
-  }, [isLoggedIn, navigate]);
-=======
+  const handleSignUpClick = () => {
+    navigate('/signup');
+  };
+
   const handleLogin = () => {
     navigate('/login')
   }
->>>>>>> fa9b120fda9430e6d0069ad86e94d810b43f80b6
 
   return (
     <div 

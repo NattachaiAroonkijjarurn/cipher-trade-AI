@@ -3,13 +3,14 @@ import logo from "../img/logo.png";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
+// Connect to Backend with Axios
+import axios from "axios";
+
 const Login = () => {
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
@@ -18,47 +19,40 @@ const Login = () => {
     };
     
 
-    const handleSignUp = (e) => {
-    e.preventDefault();
+    const handleSignIn = async (e) => {
+      e.preventDefault();
 
-    // Regular expression for username (6-16 characters, English letters and numbers only)
-    const usernameRegex = /^[A-Za-z0-9]{6,16}$/;
-    // Regular expression for password (8-24 characters, at least one lowercase, one uppercase, and one number)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,24}$/;
-    // Regular expression for email
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      if (!username || !password) {
+        setError("Please fill in all fields");
+        return;
+      }
 
-    if (!username || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields");
-      return;
+      try {
+        // Send login data to the backend
+        const response = await axios.post("http://localhost:5000/api/login", {
+          username: username,
+          password: password,
+        }, {
+            withCredentials: true,
+            headers: {
+                'Access-Control-Allow-Origin': '*', 
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Assuming the backend sends a response with a status of 200 for successful login
+        if (response.status === 200) {
+          // Redirect to another page upon successful login
+          navigate("/");
+        } else {
+          // Handle other response statuses or show an error message
+          setError("Invalid username or password");
+        }
+    } catch (error) {
+        // Handle axios error or show a generic error message
+        console.log(error)
+        setError("An error occurred during login");
     }
-
-    if (!usernameRegex.test(username)) {
-      setError("Username must be 6-16 characters and A-Z, a-z, 0-9");
-      return;
-    }
-
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (!passwordRegex.test(password)) {
-      setError(
-        "Password must be 8-24 characters, include at least one uppercase letter, one lowercase letter, and one number"
-      );
-      return;
-    }
-
-    setError("");
-
-    navigate("/authentication");
-    
   };
   const icon = showPassword ? <FaEyeSlash style={{ color: 'black' }} /> : <FaEye style={{ color: 'black' }} />;
 
@@ -81,7 +75,7 @@ const Login = () => {
         <form
           className="px-8 pt-4 pb-5 mb-2 bg-white rounded-lg"
           style={{ backgroundColor: "#1E2226" }}
-          onSubmit={handleSignUp}
+          onSubmit={handleSignIn}
         >
           <div className="mb-4">
             <label

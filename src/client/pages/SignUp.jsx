@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import logo from "../img/logo.png";
 import { useNavigate } from "react-router-dom";
 
+// Axios
+import axios from "axios";
+
 const SignUp = () => {
   const navigate = useNavigate();
 
@@ -16,7 +19,7 @@ const SignUp = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
     // Regular expression for username (6-16 characters, English letters and numbers only)
@@ -51,9 +54,35 @@ const SignUp = () => {
       return;
     }
 
-    setError("");
+    try {
+        // Send login data to the backend
+        const response = await axios.post("http://localhost:5000/api/register", {
+          username: username,
+          email: email,
+          password: password,
+        }, {
+            withCredentials: true,
+            headers: {
+                'Access-Control-Allow-Origin': '*', 
+                'Content-Type': 'application/json'
+            }
+        });
 
-    navigate("/authentication");
+        // Assuming the backend sends a response with a status of 200 for successful login
+        if (response.status === 200) {
+          // Redirect to another page upon successful login
+          navigate("/authentication");
+        } else {
+          // Handle other response statuses or show an error message
+          setError(response);
+        }
+    } catch (error) {
+        // Handle axios error or show a generic error message
+        console.log(error)
+        setError("An error occurred during sign up");
+    }
+
+    setError("");
   };
 
   return (

@@ -1,7 +1,10 @@
 import express from 'express'
 
 // Controllers Login System
-import { signUp, signIn, signOut, authenUser, getEmail } from '../controllers/LoginSystem.js' 
+import { signUp, signIn, signOut, authenUser } from '../controllers/LoginSystem.js' 
+
+// Controllers for Verification
+import { emailVerify } from '../controllers/VerifySystem.js' 
 
 const router = express.Router()
 
@@ -25,7 +28,14 @@ router.post('/logout', signOut)
 // @ENDPOINT : http//localhost:5000/api/auth-user
 // @METHOD : GET
 // Authenticate user is logged in
-router.get('/get-email', getEmail)
+router.get('/auth-user', authenUser)
+
+// ======================================== Verification =========================================
+
+// @ENDPOINT : http//localhost:5000/api/email-verify
+// @METHOD : GET
+// Email Verification
+router.get('/email-verify', emailVerify)
 
 // ===============================================================================================
 

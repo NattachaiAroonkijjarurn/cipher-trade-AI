@@ -1,30 +1,54 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 import bcrypt from 'bcrypt';
-
-// Create User schema
-const User = mongoose.model('useraccounts', {
-    username: String,
-    password: String,
-    role: String
-  });
+import { User } from "../mongooseModels/User.js";
 
 // ============================================= Register =============================================
 const signUp = async(req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, email, password } = req.body;
+
+        const existingUser = await User.findOne({ username });
+        const existingEmail = await User.findOne({ email });
 
         // Check if the username already exists
-        const existingUser = await User.findOne({ username });
         if (existingUser) {
-        return res.status(400).send('Username already exists. Please choose a different username.');
+            return res.status(400).send('Username already exists. Please choose a different username.');
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Check if the email already exists
+        else if (existingEmail) {
+            return res.status(400).send('Email already exists. Please use a other email.');
+        }
 
-        const newUser = new User({ username, password: hashedPassword, role:"user" });
-        await newUser.save();
+        // All Pass
+        else {
+            const hashedPassword = await bcrypt.hash(password, 10);
 
-        res.send('User registered successfully');
+            const uri = process.env.DATABASE;
+            const client = new MongoClient(uri);
+
+            async function countDocumentsInCollection() {
+                try {
+                    await client.connect();
+
+                    const database = client.db('CipherTrade');
+                    const collection = database.collection('account_users');
+
+                    // Count all documents in the collection
+                    const id = await collection.countDocuments({});
+                    const newUser = new User({ user_id: `${id}`, username, email, password: hashedPassword, role:"user" });
+                    await newUser.save();
+                } finally {
+                    await client.close();
+                }
+            }
+
+            countDocumentsInCollection()
+
+            res.send('User registered successfully');
+        }
+
+        
     }catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
@@ -45,12 +69,11 @@ const signIn = async(req, res) => {
         if (user && await bcrypt.compare(password, user.password)) {
             // Set a session variable to mark the user as logged in
             req.session.isLoggedIn = true;
-            req.session.email = user.username;
+            req.session.username = user.username;
 
             // Set a cookie to store the session ID
             res.cookie('sessionID', req.sessionID, { httpOnly: true });
-
-            res.send(req.session.email);
+            res.status(200).send('Login Success')
         } 
         else {
             res.status(401).send('Invalid username or password');
@@ -78,12 +101,11 @@ const signOut = async(req, res) => {
 }
 
 // ========================================= Authentication ===========================================
-const authenUser = async(req, res, next) => {
+const authenUser = async(req, res) => {
 
     try{
-        
         if (req.session.isLoggedIn) {
-            return true
+            res.status(200).send('Authorized')
         } 
         else {
             res.status(401).send('Unauthorized. Please log in.');
@@ -95,14 +117,4 @@ const authenUser = async(req, res, next) => {
 
 }
 
-
-const getEmail = async(req, res) => {
-    try{
-        if(authenUser)
-            res.send("Email : " + req.session.email)
-    }catch(err) {
-        res.send(err)
-    }
-}
-
-export {signUp, signIn, signOut, authenUser, getEmail}
+export {signUp, signIn, signOut, authenUser }

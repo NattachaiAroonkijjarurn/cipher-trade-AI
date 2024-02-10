@@ -538,7 +538,7 @@ const Overall = () => {
       <h1 className="titlle text-2xl border-b-2 border-slate-500 w-full">Overall</h1>
 
       {/* Filter */}
-      <div className="filter flex flex-auto flex-wrap mt-3 mr-auto gap-5 items-center">
+      <div className="filter flex flex-auto flex-wrap mt-3 mr-auto gap-5 items-center justify-start">
 
         {/* Date Filter */}
         <div className="date-filter">
@@ -597,9 +597,9 @@ const Overall = () => {
       </div>
 
       {/* Static Contanier */}
-      <div className='statitic-container flex flex-col my-5 gap-5 w-full'>
+      <div className='statitic-container flex flex-col my-5 gap-5 w-full justify-end'>
         {/* W/L and Profit Growth */}
-        <div className={isTabletMidChart ? 'winrate-pg flex flex-col items-center gap-5 w-full' : 'winrate-pg flex items-center gap-5 w-full'}>
+        <div className={isTabletMidChart ? 'winrate-pg flex flex-col items-center gap-5 w-full justify-end' : 'winrate-pg flex items-center gap-5 w-full'}>
           {/* W/L */}
           <div className={isTabletMidChart ? 'winrate-container flex flex-col bg-[#1E2226] w-full rounded-lg' : 'winrate-container flex flex-col bg-[#1E2226] w-6/12 rounded-lg'}>
             <span className={isTabletMidChart ? 'pl-10 pt-5 pb-5 text-2xl font-bold' : 'pl-10 pt-5 pb-2 text-2xl font-bold'}>Winrate</span>
