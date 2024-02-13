@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 import bcrypt from 'bcrypt';
 import { User } from "../mongooseModels/User.js";
+import nodemailer from 'nodemailer'
 
 // ============================================= Register =============================================
 const signUp = async(req, res) => {
@@ -24,6 +25,76 @@ const signUp = async(req, res) => {
         else {
             const hashedPassword = await bcrypt.hash(password, 10);
 
+            req.session.signupUsername = username
+            req.session.signupEmail = email
+            req.session.signupPassword = hashedPassword
+
+            await sendSignUpCode(req, res);
+        }
+
+        
+    }catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+}
+
+const generateVerificationCode = () => {
+    // Generate a random 6-character string with both numbers and alphabets
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let verificationCode = '';
+
+    for (let i = 0; i < 6; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        verificationCode += characters.charAt(randomIndex);
+    }
+
+    return verificationCode;
+};
+
+const sendSignUpCode = async (req, res) => {
+    try {
+        // Check if a verification code is already stored in the session
+        let sessionCode
+        if(req.session.code) {
+            sessionCode = req.session.code
+        }
+        else {
+            sessionCode = generateVerificationCode();
+            req.session.code = sessionCode;
+        }
+
+        // Configure nodemailer with your email server details
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'ciphertradeai@gmail.com',
+                pass: 'tdxt vedw hhgg xsap',
+            },
+        });
+
+        // Send email
+        await transporter.sendMail({
+            from: 'ciphertradeai@gmail.com',
+            to: 'oilnakab0@gmail.com',
+            subject: 'Verification Code for Sign Up',
+            text: `Your verification code is: ${sessionCode}`,
+        });
+
+        res.send({ success: true, message: 'Verification code sent successfully' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send({ error: 'Server Error' });
+    }
+};
+
+const verifySignUpCode = async (req, res) => {
+    try {
+
+        const sessionCode = req.session.code;
+
+        if (sessionCode === req.body.verifyCode) {
+
             const uri = process.env.DATABASE;
             const client = new MongoClient(uri);
 
@@ -34,26 +105,35 @@ const signUp = async(req, res) => {
                     const database = client.db('CipherTrade');
                     const collection = database.collection('account_users');
 
+                    const signupUsername = req.session.signupUsername
+                    const signupEmail = req.session.signupEmail
+                    const signupPassword = req.session.signupPassword
+
                     // Count all documents in the collection
                     const id = await collection.countDocuments({});
-                    const newUser = new User({ user_id: `${id}`, username, email, password: hashedPassword, role:"user" });
+                    const newUser = new User({ user_id: `${id}`, username: signupUsername, email: signupEmail, password: signupPassword, role:"user", isEmailVerified: false });
                     await newUser.save();
                 } finally {
+                    // Optionally, you may clear the verification code from the session
+                    delete req.session.code;
+                    delete req.session.signupUsername
+                    delete req.session.signupEmail
+                    delete req.session.signupPassword
                     await client.close();
                 }
             }
 
             countDocumentsInCollection()
 
-            res.send('User registered successfully');
+            return res.send({ success: true, message: 'User Sign Up Successfully' });
+        } else {
+            return res.send({ success: false, message: 'Invalid verification code' });
         }
-
-        
-    }catch (err) {
+    } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.status(500).send({ error: 'Server Error' });
     }
-}
+};
 
 // ============================================== Login ===============================================
 const signIn = async(req, res) => {
@@ -105,10 +185,10 @@ const authenUser = async(req, res) => {
 
     try{
         if (req.session.isLoggedIn) {
-            res.status(200).send('Authorized')
+            res.send({authorized: true})
         } 
         else {
-            res.status(401).send('Unauthorized. Please log in.');
+            res.send({authorized: false})
         }
 
     }catch(err) {
@@ -117,4 +197,4 @@ const authenUser = async(req, res) => {
 
 }
 
-export {signUp, signIn, signOut, authenUser }
+export { signUp, sendSignUpCode, verifySignUpCode, signIn, signOut, authenUser }

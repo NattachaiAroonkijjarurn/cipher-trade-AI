@@ -41,6 +41,7 @@ app.use(session({
   secret: salty,
   resave: true,
   saveUninitialized: true,
+  cookie: { secure: false },
 }));
 
 // Logging the contents of the 'routes' directory

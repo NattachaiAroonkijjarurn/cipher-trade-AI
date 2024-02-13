@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import logo from "../img/logo.png";
+import React, { useState, useEffect } from "react";
+import logo from "../../img/logo.png";
 import { useNavigate } from "react-router-dom";
 
 // Axios
@@ -7,6 +7,23 @@ import axios from "axios";
 
 const SignUp = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/auth-user', {
+          withCredentials: true,
+        });
+        // Assuming the backend sends a response with a status of 200 if the user is logged in
+        if (response.data.authorized == true) {
+          navigate('/aiTradingBot')
+        }
+      } catch (error) {
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -71,7 +88,7 @@ const SignUp = () => {
         // Assuming the backend sends a response with a status of 200 for successful login
         if (response.status === 200) {
           // Redirect to another page upon successful login
-          navigate("/authentication");
+          navigate("/verify-signup");
         } else {
           // Handle other response statuses or show an error message
           setError(response);

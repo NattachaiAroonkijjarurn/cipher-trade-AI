@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 
 // DropDown
-import "../layouts/layoutsCss/DropDown.css"
+import DropDown from '../layouts/DropDown/DropDown';
 
 // DatePicker
 import { DateRangePicker } from 'react-date-range';
@@ -31,24 +31,12 @@ const Overall = () => {
 
 // =========================================================== Bot Filter + DropDown ===========================================================
     // useState to set state of DropDown and Bot Choosed
-    const [dropped, setDropped] = useState(false)
+
     const [botPick, setBotPick] = useState("All")
 
-    // Control DropDown in and out
-    useEffect(() => {
-        const dropdownBtn = document.querySelector(".dropdown-btn");
-        const dropdownCaret = document.querySelector(".arrow");
-        const dropdownContent = document.querySelector(".dropdown-content");
-
-        // add rotate to caret element
-        dropdownCaret.classList.toggle("arrow-rotate");
-        // add open styles to menu element
-        dropdownContent.classList.toggle("menu-open");
-        dropdownBtn.setAttribute(
-            "aria-expanded",
-            dropdownBtn.getAttribute("aria-expanded") === "true" ? "false" : "true"
-        );
-    },[dropped])
+    const handleBotSelection = (selectedBot) => {
+      setBotPick(selectedBot);
+    };
 
 // =========================================================== Date Filter ===========================================================
     // useState to set Start and End Date
@@ -71,13 +59,13 @@ const Overall = () => {
 
     // Sample Data
     const demoData = [
-      { id: 20000, currencyPair: "EURUSD", entryTime: 1706650594000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1706650594000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
-      { id: 20002, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
-      { id: 20004, currencyPair: "EURUSD", entryTime: 1706903347000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
-      { id: 20005, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
-      { id: 20006, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
+      { id: 20000, currencyPair: "EURUSD", entryTime: 1707369016000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
+      { id: 20001, currencyPair: "EURUSD", entryTime: 1707369016000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
+      { id: 20002, currencyPair: "EURUSD", entryTime: 1707455416000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
+      { id: 20003, currencyPair: "EURUSD", entryTime: 1707541816000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
+      { id: 20004, currencyPair: "EURUSD", entryTime: 1707541816000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
+      { id: 20005, currencyPair: "EURUSD", entryTime: 1707628216000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
+      { id: 20006, currencyPair: "EURUSD", entryTime: 1707628216000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
     ];
 
     // useState for keeping Chart Data
@@ -577,18 +565,10 @@ const Overall = () => {
         {/* Bot Filter */}
         <div className="bot-filter whitespace-pre flex flex-auto items-center w-[16em] z-60 relative">
           <p className="mr-2">Bot :</p>
-          <div className="dropdown">
-            <button className="dropdown-btn" aria-label="menu button" aria-haspopup="menu" aria-expanded="false" aria-controls="dropdown-menu" onClick={() => {setDropped(!dropped)}}>
-                <span>{botPick}</span>
-                <span className="arrow"></span>
-            </button>
-            <ul className="dropdown-content" role="menu" id="dropdown-menu">
-                <li onClick={() => {setBotPick("Bot1")}}><p>Bot1</p></li>
-                <li onClick={() => {setBotPick("Bot2")}}><p>Bot2</p></li>
-                <li onClick={() => {setBotPick("Bot3")}}><p>Bot3</p></li>
-                <li onClick={() => {setBotPick("Bot4")}}><p>Bot4</p></li>
-            </ul>
-        </div>
+          <DropDown
+            botPick = {botPick}
+            onBotSelect={handleBotSelection}
+          />
         </div>
         {/* Reset Button */}
         <div className="resetButton bg-[#3a3c3d] rounded-lg flex-shrink-0">

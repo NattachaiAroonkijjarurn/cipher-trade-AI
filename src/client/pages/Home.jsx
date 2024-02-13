@@ -18,7 +18,7 @@ const Home = () => {
           withCredentials: true,
         });
         // Assuming the backend sends a response with a status of 200 if the user is logged in
-        if (response.status === 200) {
+        if (response.data.authorized == true) {
           navigate('/aiTradingBot')
         }
       } catch (error) {
@@ -26,7 +26,7 @@ const Home = () => {
     };
 
     checkLoginStatus();
-  }, [location]);
+  }, []);
 
   const handleSignUpClick = () => {
     navigate('/signup');

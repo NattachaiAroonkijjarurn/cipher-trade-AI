@@ -12,7 +12,8 @@ import Statements from "./client/pages/Statements";
 import Overall from "./client/pages/Overall";
 import Support from "./client/pages/Support";
 import Profile from "./client/pages/Profile/Profile";
-import SignUp from "./client/pages/SignUp";
+import SignUp from "./client/pages/SignUp/SignUp";
+import VerifySignUp from "./client/pages/SignUp/VerifySignUp"
 import Authentication from "./client/pages/Authentication";
 import Login from "./client/pages/Login";
 
@@ -25,6 +26,7 @@ const App = () => {
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isInitialCheckDone, setIsInitialCheckDone] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -32,52 +34,34 @@ const App = () => {
         const response = await axios.get('http://localhost:5000/api/auth-user', {
           withCredentials: true,
         });
-        console.log(response)
-        // Assuming the backend sends a response with a status of 200 if the user is logged in
-        if (response.status === 200) {
+        if (response.data.authorized == true) {
           setIsLoggedIn(true);
+          setIsInitialCheckDone(true);
+        }
+        else {
+          // Check if the current page is Home
+          const isHomePage = location.pathname == "/" ? true : false
+          if(!isHomePage) {
+            navigate('/login')
+          } 
         }
       } catch (error) {
-        // If there is an error or the status is not 200, the user is not logged in
         setIsLoggedIn(false);
       }
     };
 
-    checkLoginStatus();
-  }, [location]);
-
-  // Redirect to another page if logged in
-  useEffect(() => {
-    console.log("Login: "+isLoggedIn)
-    const checkEmailVerification = async () => {
-      try {
-        const emailVerified = await axios.get('http://localhost:5000/api/email-verify', {
-          withCredentials: true,
-        })
-        console.log("Email: "+emailVerified.data.emailVerify)
-        if(emailVerified.data.emailVerify == false) {
-          navigate('/authentication')
-        }
-        else {
-          setIsEmailVerified(true)
-          navigate(location)
-        }
-      } catch(err) {
-          console.log(err)
-      }
+    if(!isInitialCheckDone){
+      checkLoginStatus();
     }
-
-    if (isLoggedIn && !isEmailVerified) {
-      checkEmailVerification();
-    }
-
-  }, [isLoggedIn, location]);
+      
+  }, [navigate]);
 
   return (
     <RootLayout>
       <Routes>
         <Route path="/" element={<Home />}/> 
         <Route path="/signup" element ={<SignUp />} />
+        <Route path="/verify-signup" element ={<VerifySignUp />} />
         <Route path="/login" element = {<Login />} />
         <Route path="/authentication" element = {<Authentication />} />
         <Route path="/aiTradingBot" element={<AITradingBot />} />

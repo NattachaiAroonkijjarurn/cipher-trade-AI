@@ -1,28 +1,10 @@
 import React, { useState, useEffect } from "react";
-import logo from "../img/logo.png";
+import logo from "../../img/logo.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Authentication = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkEmailVerification = async () => {
-      try {
-        // Check if verification has already been initiated
-        const emailVerified = await axios.get('http://localhost:5000/api/email-verify', {
-          withCredentials: true,
-        });
-      
-        if (emailVerified.data.emailVerify === true) {
-          navigate('/aiTradingBot');
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    checkEmailVerification()
-  }, []);
 
   const [digitCode, setDigitCode] = useState("");
   const [error, setError] = useState("");
@@ -33,7 +15,7 @@ const Authentication = () => {
 
     const checkVerifyCode = async() => {
       try {
-        const response = await axios.post('http://localhost:5000/api/verify-code', 
+        const response = await axios.post('http://localhost:5000/api/verify-suc', 
         {
           verifyCode: digitCode
         },
@@ -43,7 +25,7 @@ const Authentication = () => {
         if (response.data.success == true) {
           console.log("Verification Success")
           // Navigate to authentication page
-          navigate("/aiTradingBot");
+          navigate("/login");
         }
         else {
           setError("Code dosen't match")
@@ -74,14 +56,14 @@ const Authentication = () => {
   };
 
   const handleSendCode = () => {
-    const reSendCode = async () => {
+    const sendCode = async () => {
       try {
         // Disable the button and reset the countdown
         setIsButtonDisabled(true);
         setCountdown(30);
 
         // Your axios request to resend the verification code
-        const response = await axios.get("http://localhost:5000/api/resend-vc", {
+        const response = await axios.get("http://localhost:5000/api/send-suc", {
           withCredentials: true,
           headers: {
             "Access-Control-Allow-Origin": "*",
@@ -95,7 +77,7 @@ const Authentication = () => {
       }
     };
 
-    reSendCode();
+    sendCode();
   };
 
   useEffect(() => {
@@ -130,7 +112,7 @@ const Authentication = () => {
           className="text-lg font-bold text-center p-1 mb-0 mtext-white mt-2"
           style={{ color: "#2C7AFE" }}
         >
-          Email Verification
+          Email Verification for Sign Up
         </h1>
         <form
           className="px-8 pt-4 pb-5 mb-2 bg-white rounded-lg"

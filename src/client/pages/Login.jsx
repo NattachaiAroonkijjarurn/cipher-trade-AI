@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../img/logo.png";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -8,6 +8,23 @@ import axios from "axios";
 
 const Login = () => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+      const checkLoginStatus = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/auth-user', {
+            withCredentials: true,
+          });
+          // Assuming the backend sends a response with a status of 200 if the user is logged in
+          if (response.data.authorized == true) {
+            navigate('/aiTradingBot')
+          }
+        } catch (error) {
+        }
+      };
+  
+      checkLoginStatus();
+    }, []);
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");

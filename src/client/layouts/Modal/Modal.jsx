@@ -11,10 +11,19 @@ import DlAccModal from './subModal/JS/dlAccModal';
 
 const Modal = ({ showModal, onClose, modalType }) => {
   let modalContent;
+  const [changeSuccess, setIsChangeSuccess] = useState(false)
+
+  const handleChangeSuccess = () => {
+    setIsChangeSuccess(true);
+  };
+
+  const handleRefreshPage = () => {
+    window.location.reload(true)
+  }
 
   switch (modalType) {
     case 'email':
-      modalContent = <EmailModal/>;
+      modalContent = <EmailModal onClose={onClose} onSubmit={handleChangeSuccess} />;
       break;
     case 'phoneNumber':
       modalContent = <PhoneModal/>;
@@ -36,7 +45,7 @@ const Modal = ({ showModal, onClose, modalType }) => {
     <>
       <div className={`modal-overlay ${showModal ? "" : "hide hidden"}`}>
         <div className={`modal ${showModal ? "" : "hide hidden"}`}>
-          <button className={modalType == "dlAcc" ? "delClose-button" : "close-button"} onClick={onClose}>
+          <button className={modalType == "dlAcc" ? "delClose-button" : "close-button"} onClick={changeSuccess ? handleRefreshPage : onClose}>
             X
           </button>
           {modalContent}

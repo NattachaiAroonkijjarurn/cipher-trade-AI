@@ -42,3 +42,24 @@
 .verify-button {
     @apply overflow-hidden text-ellipsis whitespace-nowrap ml-5 w-10/12 rounded-lg py-4 px-3 justify-center md:cursor-pointer cursor-default
 }
+
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  .loading {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

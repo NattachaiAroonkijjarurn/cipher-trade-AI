@@ -1,13 +1,11 @@
 // React
 import { useMediaQuery } from "react-responsive";
 import { useEffect, useState } from "react";
-import { Tooltip } from 'react-tooltip';
 
 // Icon
 import { FaEdit } from "react-icons/fa";
-import { useStaticRangePicker } from "@mui/x-date-pickers-pro/internals/hooks/useStaticRangePicker";
 
-export default function MyProfile() {
+export default function MyProfile({data}) {
 
     // Check Window Size for Responsive
     let isTabletMid = useMediaQuery({ query: "(max-width: 1200px)" });
@@ -16,35 +14,23 @@ export default function MyProfile() {
     const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        // Fetch data when the component mounts
-        // Replace this with your actual data fetching logic
-        const fetchData = async () => {
-            // Example: Fetch data from an API endpoint
-            const response = await fetch("http://localhost:3000/Data/data.json");
-            const data = await response.json();
-            
-            // Set the fetched data to the state
-            setUserData(data[0]);
-            setEditedFname(data[0].fname)
-            setEditedLname(data[0].lname)
-        };
-
-        fetchData();
-    }, []);
+ 
+        setUserData(data);
+        // Check if data is available before setting editedFname and editedLname
+        if (data && data.fname && data.lname) {
+            setEditedUserName(data.username);
+        }
+  
+    }, [data]);
 
 // ================================================================ Edit ================================================================
     // Fname and Lname
     const [isEditing, setIsEditing] = useState(false);
-    const [editedFname, setEditedFname] = useState(userData.fname);
-    const [editedLname, setEditedLname] = useState(userData.lname);
+    const [editedUserName, setEditedUserName] = useState();
 
-    const handleFnameChange = (e) => {
-        setEditedFname(e.target.value)
+    const handleUserNameChange = (e) => {
+        setEditedUserName(e.target.value)
   
-    }
-
-    const handleLnameChange = (e) => {
-        setEditedLname(e.target.value)
     }
 
     // Profile Image
@@ -70,15 +56,14 @@ export default function MyProfile() {
     // Handle All Changes
     const [isDataChanged, setIsDataChanged] = useState(false);
     useEffect(() => {
-        if (editedFname === userData.fname 
-            && editedLname === userData.lname
+        if (editedUserName === userData.username
             && profileImage === null) {
             setIsDataChanged(false)
         }
         else {
             setIsDataChanged(true)
         }
-    },[editedFname, editedLname, profileImage])
+    },[editedUserName, profileImage])
 
     const removeImage = () => {
         setProfileImage(null);
@@ -92,8 +77,7 @@ export default function MyProfile() {
 
     const handleCancle = () => {
         removeImage();
-        setEditedFname(userData.fname)
-        setEditedLname(userData.lname)
+        setEditedUserName(userData.username)
         setIsEditing(false)
         setIsDataChanged(false)
     }
@@ -118,36 +102,23 @@ export default function MyProfile() {
                         <FaEdit/>
                     </button>
                 </div>
-                <div className={isTabletMid ? "name grid grid-rows-2 gap-5 mt-10" : "name grid grid-cols-2 gap-20 mt-10"}>
+                <div className={isTabletMid ? "name grid grid-rows-1 gap-5 mt-10" : "name grid grid-cols-2 gap-20 mt-10"}>
                     {isEditing 
                         ?   <>
-                            <div className="fname flex flex-col gap-2">
-                                <h3 className="text-slate-500">First Name</h3>
+                            <div className="username flex flex-col gap-2">
+                                <h3 className="text-slate-500">Username</h3>
                                 <input
-                                    className="fname-form px-5 py-2 rounded-md text-[#000000]"
+                                    className="username-form px-5 py-2 rounded-md text-[#000000]"
                                     type="text"
-                                    value={editedFname}
-                                    onChange={handleFnameChange}
-                                />
-                            </div>
-                            <div className="lname flex flex-col gap-2">
-                                <h3 className="text-slate-500">Last Name</h3>
-                                <input
-                                    className="lname-form px-5 py-2 rounded-md text-[#000000]"
-                                    type="text"
-                                    value={editedLname}
-                                    onChange={handleLnameChange}
+                                    value={editedUserName}
+                                    onChange={handleUserNameChange}
                                 />
                             </div>
                             </>
                         :   <>
                             <div className="fname flex flex-col gap-2">
-                                <h3 className="text-slate-500">First Name</h3>
-                                <h3>{userData.fname}</h3>
-                            </div>
-                            <div className="lname flex flex-col gap-2">
-                                <h3 className="text-slate-500">Last Name</h3>
-                                <h3>{userData.lname}</h3>
+                                <h3 className="text-slate-500">Username</h3>
+                                <h3>{userData ? userData.username : "-"}</h3>
                             </div>
                             </>
                     }

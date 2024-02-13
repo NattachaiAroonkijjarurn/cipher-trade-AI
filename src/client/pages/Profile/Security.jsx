@@ -10,7 +10,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 // Layout
 import Modal from "../../layouts/Modal/Modal"
 
-export default function Security() {
+export default function Security({data}) {
 
     // Check Window Size for Responsive
     let isTabletMid = useMediaQuery({ query: "(max-width: 1200px)" });
@@ -19,19 +19,10 @@ export default function Security() {
     const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        // Fetch data when the component mounts
-        // Replace this with your actual data fetching logic
-        const fetchData = async () => {
-            // Example: Fetch data from an API endpoint
-            const response = await fetch("http://localhost:3000/Data/data.json");
-            const data = await response.json();
-            
-            // Set the fetched data to the state
-            setUserData(data[0]);
-        };
+        
+        setUserData(data);
 
-        fetchData();
-    }, []);
+    }, [data]);
 
 // ======================================================= Modal =======================================================
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
