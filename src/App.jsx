@@ -39,11 +39,13 @@ const App = () => {
           setIsInitialCheckDone(true);
         }
         else {
-          // Check if the current page is Home
           const isHomePage = location.pathname == "/" ? true : false
-          if(!isHomePage) {
+          const isSignUpPage = location.pathname == "/signup" ? true : false
+          const isVerifySignUpPage = location.pathname == "/verify-signup" ? true : false
+
+          if(!isHomePage && !isSignUpPage && !isVerifySignUpPage) {
             navigate('/login')
-          } 
+          }
         }
       } catch (error) {
         setIsLoggedIn(false);
