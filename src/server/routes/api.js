@@ -13,6 +13,9 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
          twoFactor } 
          from '../controllers/ChangeSecurifyInfoSystem.js'
 
+// Models
+import { getModel } from '../Models/model.js'
+
 const router = express.Router()
 
 // ========================================= Login System =========================================
@@ -100,6 +103,8 @@ router.post('/change-pass', changePassword)
 // 2-Factor Authentication
 router.post('/two-factor', twoFactor)
 
-// ===============================================================================================
+// ======================================= AI model System =========================================
+router.get('/model', getModel)
+
 
 export default router;
