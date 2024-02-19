@@ -182,10 +182,9 @@ const signOut = async(req, res) => {
 
 // ========================================= Authentication ===========================================
 const authenUser = async(req, res) => {
-
     try{
         if (req.session.isLoggedIn) {
-            res.send({authorized: true})
+            res.send({authorized: true, username : req.session.username})
         } 
         else {
             res.send({authorized: false})

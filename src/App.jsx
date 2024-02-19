@@ -37,6 +37,8 @@ const App = () => {
         if (response.data.authorized == true) {
           setIsLoggedIn(true);
           setIsInitialCheckDone(true);
+
+          console.log("Logged in as : ", response.data.username)
         }
         else {
           const isHomePage = location.pathname == "/" ? true : false

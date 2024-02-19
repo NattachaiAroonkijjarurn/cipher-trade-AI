@@ -17,12 +17,10 @@ const Wallets = () => {
     },
   ]);
   // const [showConfirmation, setShowConfirmation] = useState(false)
-  const [currentAction, setCurrentAction] = useState(null)
-  const [selectWalletId, setSelectWalletId] = useState(null)
+
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [walletInfoVisible, setWalletInfoVisible] = useState(false);
   const [animation, setAnimation] = useState('slid-up')
 
   const [showEdit, setShowEdit] = useState(false);
@@ -31,35 +29,17 @@ const Wallets = () => {
   useEffect(() => {
     setAnimation('slid-up');
     setTimeout(() => {
-      setWalletInfoVisible(true);
       setAnimation('slid-up-active')
-    }, 10); // Delay the animation slightly to ensure it plays after mount
-     // Cleanup the timeout
-  }, []); // Empty dependency array to run only once after mount
+    }, 10);
+  }, []);
 
-  const handleDeleteClick = (id) => {
-    setCurrentAction('delete')
-    setSelectWalletId(id)
-  }
 
   const handleEditClick = (id) => {
     setShowEdit(true)
-    setSelectWalletId(id)
     const filteredWallet = wallets.filter(wallet => wallet.id === id);
     setcountWallet(filteredWallet[0])
-    // console.log(filteredWallet)
   }
 
-
-  const handleConfirmAction = () => {
-    if (currentAction === 'reset') {
-      resetBotData(selectWalletId);
-    } else if (currentAction === 'delete') {
-      const updatedWallets = wallets.filter(wallet => wallet.id !== selectWalletId);
-      setTableData(updatedWallets);
-    }
-    setShowConfirmation(false);
-  };
 
   const toggleModal = () => setIsModalOpen(!isModalOpen)
 
@@ -130,8 +110,6 @@ const Wallets = () => {
       <EditWallet 
         isOpen={showEdit}
         onClose={() => setShowEdit(false)}
-        // setCurrentAction={setCurrentAction}
-        // onConfirm={handleConfirmAction}
         wallet={countWallet}
         walletmain={wallets}
         setWallet={setWallet}

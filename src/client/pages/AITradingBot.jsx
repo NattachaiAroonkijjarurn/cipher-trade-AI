@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
+import { fetchUsername } from "./fetch/fetchData";
 
 //layout
 import "../layouts/DropDown/DropDown.css"
@@ -44,6 +45,10 @@ const AITradingBot = () => {
   const [animation, setAnimation] = useState('slid-up')
   const [animationVisible, setAnimationVisible] = useState(true);
 
+  const [username, setUsername] = useState('');
+
+  const [isDataFetched, setIsDataFetched] = useState(false);
+
   
     // useEffect for fetching data from the API
   useEffect(() => {
@@ -52,14 +57,15 @@ const AITradingBot = () => {
         const response = await axios.get('http://localhost:5000/api/model');
         setTableData(response.data); 
         setDefaultbot(response.data);
+        await fetchUsername(setUsername); // Ensure fetchUsername is async or handled correctly
+        setIsDataFetched(true); // Indicate that data fetching is complete
       } catch (error) {
         console.error("Failed to fetch bots:", error);
       }
     };
-
+  
     fetchData();
   }, []);
-
 
   // Control DropDown in and out
   useEffect(() => {
@@ -77,15 +83,17 @@ const AITradingBot = () => {
     );
   },[dropped])
 
-  useEffect (() => {
-    setAnimation('slid-up')
-    setTimeout(()=> {
-      setAnimation('slid-up-active')
-    }, 10)
-    setTimeout(() => {
-      setAnimationVisible(false)
-    }, 800)
-  } ,[]);
+  useEffect(() => {
+    if (isDataFetched) { // Check if data has been fetched
+      setAnimation('slid-up');
+      setTimeout(() => {
+        setAnimation('slid-up-active');
+      }, 10);
+      setTimeout(() => {
+        setAnimationVisible(false);
+      }, 800);
+    }
+  }, [isDataFetched]);
 
   useEffect(() => {
     const filterBots = () => {
@@ -110,7 +118,7 @@ const AITradingBot = () => {
 
   return (
     <div className="page-container flex flex-col mt-7 ml-auto">
-      <h1 className="title text-2xl text-white ml-5">Bot Trading Strategies</h1>
+      <h1 className="title text-2xl text-white ml-5">Bot Trading Strategies {username}</h1>
       <div className={`flex justify-between mx-5`}>
         <div className="flex justify-end flex-1">
           <div className="dropdown w-24">
