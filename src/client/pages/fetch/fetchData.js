@@ -14,4 +14,18 @@ async function fetchUsername(setUsername) {
     fetchData();
 }
 
-export {fetchUsername}
+async function fetchUserId(setUserId) {
+  const fetchData = async () => {
+    try {
+      const authResponse = await axios.get('http://localhost:5000/api/auth-user', { withCredentials: true });
+      if (authResponse.data.authorized) {
+        setUserId(authResponse.data.user_id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user_id:", error);
+    }
+  }
+  fetchData();
+}
+
+export {fetchUsername, fetchUserId}

@@ -63,9 +63,9 @@ const AITradingBot = () => {
         console.error("Failed to fetch bots:", error);
       }
     };
-  
     fetchData();
   }, []);
+  
 
   // Control DropDown in and out
   useEffect(() => {

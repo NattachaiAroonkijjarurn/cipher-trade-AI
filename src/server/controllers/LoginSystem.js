@@ -150,6 +150,7 @@ const signIn = async(req, res) => {
             // Set a session variable to mark the user as logged in
             req.session.isLoggedIn = true;
             req.session.username = user.username;
+            req.session.user_id = user.user_id
 
             // Set a cookie to store the session ID
             res.cookie('sessionID', req.sessionID, { httpOnly: true });
@@ -184,7 +185,7 @@ const signOut = async(req, res) => {
 const authenUser = async(req, res) => {
     try{
         if (req.session.isLoggedIn) {
-            res.send({authorized: true, username : req.session.username})
+            res.send({authorized: true, user_id : req.session.user_id, username : req.session.username})
         } 
         else {
             res.send({authorized: false})

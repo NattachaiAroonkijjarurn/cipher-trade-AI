@@ -16,6 +16,9 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
 // Models
 import { getModel } from '../Models/model.js'
 
+//AccountMT
+import { getAccountMT } from '../mt/accountMt.js'
+
 const router = express.Router()
 
 // ========================================= Login System =========================================
@@ -105,6 +108,9 @@ router.post('/two-factor', twoFactor)
 
 // ======================================= AI model System =========================================
 router.get('/model', getModel)
+
+// ======================================= get Account MT =========================================
+router.get('/account-mt', getAccountMT)
 
 
 export default router;

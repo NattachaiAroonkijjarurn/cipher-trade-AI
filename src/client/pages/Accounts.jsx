@@ -4,6 +4,9 @@ import { FaEdit } from "react-icons/fa";
 
 import "../layouts/layoutsCss/PopUp.css"
 
+import { fetchUserId } from "./fetch/fetchData";
+import axios from "axios";
+
 const Wallets = () => {
   const [wallets, setWallet] = useState([
     {
@@ -26,12 +29,34 @@ const Wallets = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [countWallet, setcountWallet] = useState([])
 
+  const [isDataFetched, setIsDataFetched] = useState(false);
+  const [userId, setUserId] = useState('')
+  const [accountMT, setAccountMT] = useState([])
+
   useEffect(() => {
     setAnimation('slid-up');
     setTimeout(() => {
       setAnimation('slid-up-active')
     }, 10);
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchUserId(setUserId)
+      if (!userId) return; // Exit if userId is not set
+      try {
+        const response = await axios.get(`http://localhost:5000/api/account-mt`, {
+          params: { user_id: userId },
+          withCredentials: true
+        });
+        setAccountMT(response.data);
+        setIsDataFetched(true);
+      } catch (error) {
+        console.error("Failed to fetch account MT:", error);
+      }
+    };
+    fetchData();
+  }, [userId]); 
 
 
   const handleEditClick = (id) => {
