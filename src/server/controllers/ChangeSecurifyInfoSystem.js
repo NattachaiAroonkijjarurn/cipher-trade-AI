@@ -1,30 +1,93 @@
+import { isRouteErrorResponse } from "react-router-dom";
 import { User } from "../mongooseModels/User.js";
 
 // ============================================= Change Email =============================================
 const changeEmail = async (req, res) => {
     try {
 
-        const saveData = async() => {
-            user.email = newEmail;
-            user.isEmailVerified = false;
-            await user.save();
-        }
-
         const newEmail = req.body.newEmail;
-        const username = req.session.username;
-        const user = await User.findOne({ username });
+        await sendCodeToNewEmail(req, res)
 
-        await saveData()
-
-        // Fetch the updated user after saving
-        const updatedUser = await User.findOne({ username });
-
-        res.status(200).json({ message: 'Email changed successfully', user: updatedUser });
+        res.status(200).json({ message: 'Email changed successfully'});
     } catch (err) {
         console.error("Error changing email:", err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+const generateVerificationCode = () => {
+    // Generate a random 6-character string with both numbers and alphabets
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let verificationCode = '';
+
+    for (let i = 0; i < 6; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        verificationCode += characters.charAt(randomIndex);
+    }
+
+    return verificationCode;
+};
+
+const sendCodeToNewEmail = async(req, res) => {
+    try {
+        // Check if a verification code is already stored in the session
+        let sessionCode
+        if(req.session.code) {
+            sessionCode = req.session.code
+        }
+        else {
+            sessionCode = generateVerificationCode();
+            req.session.code = sessionCode;
+        }
+
+        // Configure nodemailer with your email server details
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'ciphertradeai@gmail.com',
+                pass: 'tdxt vedw hhgg xsap',
+            },
+        });
+
+        // Send email
+        await transporter.sendMail({
+            from: 'ciphertradeai@gmail.com',
+            to: 'oilnakab0@gmail.com',
+            subject: 'Verification Code for Sign Up',
+            text: `Your verification code is: ${sessionCode}`,
+        });
+
+        res.send({ success: true, message: 'Verification code sent successfully' });
+
+    } catch(err) {
+        console.log(err)
+    }
+}
+
+const verifyCodeForNewEmail = async(req, res) => {
+    try {
+
+        const saveData = async() => {
+            user.email = newEmail;
+            await user.save();
+        }
+
+        const username = req.session.username;
+        const user = await User.findOne({ username });
+
+        if(req.body.code === req.session.code) {
+            await saveData()
+            return res.send({ success: true, message: 'Email Changed Successfully' });
+        }
+        else {
+            return res.send({ success: false, message: 'Email Changing Failed' });
+        }
+
+    } catch(err) {
+        console.log(err)
+        res.status(500).send("Server Error")
+    }
+}
 
 
 // ========================================= Change Phone Number ==========================================
@@ -70,4 +133,8 @@ const twoFactor = async (req, res) => {
     }
 };
 
-export { changeEmail, changePhoneNumber, changePassword, twoFactor };
+export { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail, 
+         changePhoneNumber, 
+         changePassword, 
+         twoFactor };
+

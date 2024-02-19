@@ -4,10 +4,14 @@ import express from 'express'
 import { signUp, sendSignUpCode, verifySignUpCode, signIn, signOut, authenUser } from '../controllers/LoginSystem.js' 
 
 // Controllers for Verification
-import { emailVerify, reSendVerificationCode, verifyCode } from '../controllers/VerifySystem.js' 
+import { reSendVerificationCode, verifyCode } from '../controllers/VerifySystem.js' 
 
 // Controllers for Change System
-import { changeEmail, changePhoneNumber, changePassword, twoFactor } from '../controllers/ChangeSecurifyInfoSystem.js'
+import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail, 
+         changePhoneNumber, 
+         changePassword, 
+         twoFactor } 
+         from '../controllers/ChangeSecurifyInfoSystem.js'
 
 const router = express.Router()
 
@@ -45,11 +49,6 @@ router.get('/auth-user', authenUser)
 
 // ======================================== Verification =========================================
 
-// @ENDPOINT : http//localhost:5000/api/email-verify
-// @METHOD : GET
-// Email Verification
-router.get('/email-verify', emailVerify)
-
 // @ENDPOINT : http://localhost:5000/api/resend-vc
 // @METHOD : POST
 // Send Verification Code
@@ -62,20 +61,39 @@ router.post('/verify-code', verifyCode)
 
 // ======================================= Change System =========================================
 
+
+// 1 Change Email ================================================================================
+
 // @ENDPOINT : http//localhost:5000/api/change-email
 // @METHOD : POST
 // Change Email
 router.post('/change-email', changeEmail)
+
+// @ENDPOINT : http//localhost:5000/api/send-cce
+// @METHOD : POST
+// Send Code Change Email
+router.post('/send-cce', sendCodeToNewEmail)
+
+// @ENDPOINT : http//localhost:5000/api/verify-cce
+// @METHOD : POST
+// Verify Code Change Email
+router.post('/verify-cce', verifyCodeForNewEmail)
+
+// 2 Change Phone Number =========================================================================
 
 // @ENDPOINT : http//localhost:5000/api/change-phone
 // @METHOD : POST
 // Change Phone Number
 router.post('/change-phone', changePhoneNumber)
 
+// 3 Change Password =============================================================================
+
 // @ENDPOINT : http//localhost:5000/api/change-pass
 // @METHOD : POST
 // Change Password
 router.post('/change-pass', changePassword)
+
+// 4 Two Factor ==================================================================================
 
 // @ENDPOINT : http//localhost:5000/api/two-factor
 // @METHOD : POST
