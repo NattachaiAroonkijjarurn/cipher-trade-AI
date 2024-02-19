@@ -38,7 +38,8 @@ const AITradingBot = () => {
   const [Defaultbots, setDefaultbot] = useState([])
   const [dropped, setDropped] = useState(false)
   const [botPick, setBotPick] = useState("All")
-  const [tradeType, setTradeType] = useState("Buy");
+  
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [animation, setAnimation] = useState('slid-up')
   const [animationVisible, setAnimationVisible] = useState(true);
@@ -87,14 +88,25 @@ const AITradingBot = () => {
   } ,[]);
 
   useEffect(() => {
-    if(botPick === "All") {
-      setTableData(Defaultbots);
-    }
-    else {
-      let fetchData = Defaultbots.filter(data => data.symbol === botPick) 
-      setTableData(fetchData);
-    }
-  }, [botPick]);
+    const filterBots = () => {
+      let filteredBots = [...Defaultbots];
+  
+      if (botPick !== "All") {
+        filteredBots = filteredBots.filter(bot => bot.symbol === botPick);
+      }
+  
+      if (searchTerm) {
+        filteredBots = filteredBots.filter(bot =>
+          bot.model_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+  
+      setTableData(filteredBots);
+    };
+  
+    filterBots();
+  }, [botPick, searchTerm, Defaultbots]);
+
 
   return (
     <div className="page-container flex flex-col mt-7 ml-auto">
@@ -115,6 +127,17 @@ const AITradingBot = () => {
               <li onClick={() => {setBotPick("USDCAD")}}><p>USDCAD</p></li>
               <li onClick={() => {setBotPick("AUDUSD")}}><p>AUDUSD</p></li>
             </ul>
+          </div>
+          <div className="flex justify-between ml-2">
+            {/* Search input */}
+            <div className="search-box rounded-lg">
+              <input
+                type="text"
+                placeholder="Search bots by name..."
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input text-black text-sm w-full pl-3 pr-4 py-2 rounded-lg border border-gray-300"
+              />
+            </div>
           </div>
         </div>
       </div>

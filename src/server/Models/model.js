@@ -1,15 +1,7 @@
-import mongoose from "mongoose";
-import { MongoClient } from "mongodb";
-import dotenv from 'dotenv';
+import { client } from '../db.js'
 
-dotenv.config() ;
-
-const uri = process.env.DATABASE;
-
-const client = new MongoClient(uri)
 const dbName = client.db('CipherTrade')
 const collection_model = dbName.collection('models')
-
 
 const getModel = async(req, res) =>{
     try {

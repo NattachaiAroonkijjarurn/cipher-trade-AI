@@ -6,7 +6,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Database
-import connectDB from './db.js';
+import {connectDB} from './db.js';
 
 // API Routes
 import router from './routes/api.js';
