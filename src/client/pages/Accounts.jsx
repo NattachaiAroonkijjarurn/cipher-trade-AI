@@ -7,7 +7,7 @@ import "../layouts/layoutsCss/PopUp.css"
 const Wallets = () => {
   const [wallets, setWallet] = useState([
     {
-      id: 'wallet 1',
+      id: 'Account 1',
       usernameMT5: '15965485',
       passwordMT5: '9876541236',
       server: 'FX-server-demo',
@@ -66,7 +66,7 @@ const Wallets = () => {
   return (
     <div className="page-container flex flex-col mt-7 ml-auto">
       <h1 className="title text-2xl text-white ml-5">
-        Wallets
+        Accounts
       </h1>
       <div className="flex justify-between mx-5">
         <div className="flex justify-end flex-1">

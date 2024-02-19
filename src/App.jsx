@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 // Pages
 import Home from "./client/pages/Home"
 import AITradingBot from "./client/pages/AITradingBot";
-import Wallets from "./client/pages/Wallets";
+import Accounts from "./client/pages/Accounts";
 import Statements from "./client/pages/Statements";
 import Overall from "./client/pages/Overall";
 import Support from "./client/pages/Support";
@@ -67,7 +67,7 @@ const App = () => {
         <Route path="/login" element = {<Login />} />
         <Route path="/authentication" element = {<Authentication />} />
         <Route path="/aiTradingBot" element={<AITradingBot />} />
-        <Route path="/wallets" element={<Wallets />} />
+        <Route path="/accounts" element={<Accounts />} />
         <Route path="/statements" element={<Statements />} />
         <Route path="/overall" element={<Overall />} />
         <Route path="/support" element={<Support />} />

@@ -8,7 +8,7 @@ import './App.css'
 // * React icons
 import { MdHeadphones } from "react-icons/md";
 import { MdAnalytics } from "react-icons/md";
-import { FaWallet } from "react-icons/fa6";
+import { MdAccountBox } from "react-icons/md";
 import { RiBuilding3Line } from "react-icons/ri";
 import { RiRobot2Fill } from "react-icons/ri";
 import { BsPersonCircle } from "react-icons/bs";
@@ -122,9 +122,9 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/wallets"} className="link hover:bg-blue-700 hover:text-white rounded">
-                <FaWallet size={23} className="min-w-max" />
-                Wallets
+              <NavLink to={"/accounts"} className="link hover:bg-blue-700 hover:text-white rounded">
+                <MdAccountBox size={23} className="min-w-max" />
+                Accounts
               </NavLink>
             </li>
             <li>
