@@ -2,25 +2,26 @@ import React ,{ useState, useEffect} from "react";
 import { FaCoins } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
 
-import "../layouts/layoutsCss/PopUp.css"
+import "../pages/css/switch.css"
 
-import { fetchUserId } from "./fetch/fetchData";
+import { fetchUserId, checkAccountMT } from "./fetch/fetchData";
 import axios from "axios";
 
-const Wallets = () => {
-  const [wallets, setWallet] = useState([
-    {
-      id: 'Account 1',
-      usernameMT5: '15965485',
-      passwordMT5: '9876541236',
-      server: 'FX-server-demo',
-      leverage: 500,
-      company: 'FXPRO Financial Services Ltd',
-      balance: 52,
-    },
-  ]);
-  // const [showConfirmation, setShowConfirmation] = useState(false)
+function ToggleSwitch({ isOn, onToggle }) {
+  return (
+    <label className="toggle-switch">
+      <input
+        type="checkbox"
+        checked={isOn}
+        onChange={onToggle}
+      />
+      <span className="switch" />
+    </label>
+  );
+}
 
+const Wallets = () => {
+  const [wallets, setWallet] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -31,150 +32,262 @@ const Wallets = () => {
 
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userId, setUserId] = useState('')
-  const [accountMT, setAccountMT] = useState([])
 
-  useEffect(() => {
-    setAnimation('slid-up');
-    setTimeout(() => {
-      setAnimation('slid-up-active')
-    }, 10);
-  }, []);
+  const [isLoading , setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchUserId(setUserId)
-      if (!userId) return; // Exit if userId is not set
+      const fetchedUserId = await fetchUserId();
+      setUserId(fetchedUserId);
+      if (!fetchedUserId) return; 
       try {
         const response = await axios.get(`http://localhost:5000/api/account-mt`, {
-          params: { user_id: userId },
+          params: { user_id: fetchedUserId },
           withCredentials: true
         });
-        setAccountMT(response.data);
+
+        const accounts = response.data
+        const updateAccounts = []
+
+        for (const account of accounts) {
+          const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
+            username: account.username_mt5,
+            password: account.password_mt5,
+            server: account.server,
+          });
+          console.log(accountDetails)
+          if (accountDetails.data.success) {
+            updateAccounts.push({
+              ...account,
+              leverage: accountDetails.data.account_info.leverage,
+              company: accountDetails.data.account_info.company,
+              balance: accountDetails.data.account_info.balance,
+            })
+          } else {
+            updateAccounts.push({
+              ...account,
+              leverage: '',
+              company: '',
+              balance: '',
+            })
+            console.log("Account check failed for account :", account.username_mt5);
+          }
+        }
         setIsDataFetched(true);
+        setWallet(updateAccounts);
       } catch (error) {
         console.error("Failed to fetch account MT:", error);
       }
     };
     fetchData();
-  }, [userId]); 
+  }, []);
 
+  useEffect(() => {
+    if (isDataFetched) {
+      setIsLoading(false);
+      setAnimation('slid-up');
+      setTimeout(() => {
+        setAnimation('slid-up-active')
+      }, 10);
+    }
+  }, [isDataFetched]);
 
-  const handleEditClick = (id) => {
-    setShowEdit(true)
-    const filteredWallet = wallets.filter(wallet => wallet.id === id);
-    setcountWallet(filteredWallet[0])
-  }
+  const handleEditClick = (username_mt5) => {
+    const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
+    setShowEdit(true);
+    setcountWallet(selectedWallet);
+  };
 
+  const handleToggleBotStatus = async (user_id, usernameMt5, modelName, currentStatus) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    
+    const updatedWallets = wallets.map(wallet => {
+      if (wallet.username_mt5 === usernameMt5) {
+        const updatedWallet = { ...wallet };
+        updatedWallet.bots = wallet.bots.map(bot => {
+          if (bot.model_name === modelName) {
+            return { ...bot, status: newStatus };
+          }
+          return bot;
+        });
+        return updatedWallet;
+      }
+      return wallet;
+    });
+    setWallet(updatedWallets);
+    
+    try {
+      const temp = await axios.post('http://localhost:5000/api/change-status-bot', {
+        user_id: user_id,
+        username_mt5: usernameMt5,
+        model_name: modelName,
+        status: newStatus,
+      });
+      console.log(temp)
+    } catch (error) {
+      console.error("Failed to change bot status:", error);
+    }
+  };
 
   const toggleModal = () => setIsModalOpen(!isModalOpen)
 
   return (
-    <div className="page-container flex flex-col mt-7 ml-auto">
-      <h1 className="title text-2xl text-white ml-5">
-        Accounts
-      </h1>
-      <div className="flex justify-between mx-5">
-        <div className="flex justify-end flex-1">
-          <button 
-            className="rounded-lg bg-blue-600 text-white whitespace-nowrap py-1 px-2 hover:bg-blue-500 active:bg-blue-700"
-            onClick = {toggleModal}>
-            + add wallet
-          </button>
-          <AddWalletModal isOpen={isModalOpen} onClose={toggleModal} setWallet={setWallet}
+    isLoading
+      ? <div className="loading-container">
+            <div className="loading"></div>
+          </div>
+      :
+      <div className="page-container flex flex-col mt-7 ml-auto">
+        <h1 className="title text-2xl text-white ml-5">
+          Accounts
+        </h1>
+        <div className="flex justify-between mx-5">
+          <div className="flex justify-end flex-1">
+            <button 
+              className="rounded-lg bg-blue-600 text-white whitespace-nowrap py-1 px-2 hover:bg-blue-500 active:bg-blue-700"
+              onClick = {toggleModal}>
+              + add wallet
+            </button>
+            <AddWalletModal isOpen={isModalOpen} onClose={toggleModal} setWallet={setWallet} user_id={userId}
+            />
+          </div>
+        </div>
+        {wallets.map((wallet, index) => (
+          <div>
+            <div key={wallet.username_mt5 || index} className={`wallet-info bg-[#1E2226] text-white p-4 my-4 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-sm ${animation}`}>
+              <div className="md-4 xl:mb-0 xl:mr-80 mr-5">
+                <h2 className="text-lg font-bold">{wallet.name_account}</h2>
+                <h3 className="text-sm ml-5">Estiamted Balance</h3>
+                <div className="flex items-center text-[#04A66D] ml-4">
+                  <h1 className="flex text-2xl ml-2"><FaCoins/></h1>
+                  <h1 className="flex text-2xl ml-2">{wallet.balance}</h1>
+                  <h1 className="flex text-2xl ml-2">USD</h1>
+                </div>
+              </div>
+              <div className="flex-1 grid grid-cols-2 xl:ml-32">
+                <div className="flex flex-col">
+                  <div>
+                    <p className="text-zinc-400">MetaTrade Username</p>
+                    <div>{wallet.username_mt5}</div>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-zinc-400">MetaTrade Server</p>
+                    <div>{wallet.server}</div>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <div>
+                    <p className="text-zinc-400">Leverage</p>
+                    <div>{wallet.leverage}</div>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-zinc-400">Company</p>
+                    <div>{wallet.company}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col justify-between gap-2">
+                <div className="flex gap-2">
+                  <button className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900">
+                    refresh
+                  </button>
+                  <button 
+                    className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900"
+                    onClick={() => handleEditClick(wallet.username_mt5)}
+                    >
+                    <FaEdit/>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {wallet.bots.map((bot, botindex) => (
+              <div key={bot.model_name || botindex} className={`bot-info bg-[#1E2228] text-white p-4 my-2 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-sm ${animation}`}>
+                <div className="md-4 xl:mb-0 xl:mr-80 mr-5">
+                  <h2 className="text-sm font-bold">{bot.model_name}</h2>
+                </div>
+                <div className="flex flex-col">
+                  <div>
+                    <p className="text-zinc-400">Timeframe</p>
+                    <div>{bot.timeframe}</div>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <div>
+                    <p className="text-zinc-400">Lot size</p>
+                    <div>{bot.lotsize}</div>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <div>
+                    <p className="text-zinc-400">Status</p>
+                    <div className={bot.status === 'active' ? 'text-green-500' : 'text-red-500'}>{bot.status}</div>
+                  </div>
+                </div>
+                <ToggleSwitch
+                  isOn={bot.status === 'active'}
+                  onToggle={() => handleToggleBotStatus(wallet.user_id, wallet.username_mt5, bot.model_name, bot.status)}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+        {showEdit && 
+          <EditWallet
+            isOpen={showEdit}
+            onClose={() => setShowEdit(false)}
+            wallet={countWallet}
+            setWallet={setWallet}
+            user_id={userId}
+            wallets={wallets}
           />
-        </div>
+        }
       </div>
-      {wallets.map((wallet) => (
-        <div key={wallet.id} className={`wallet-info bg-[#1E2226] text-white p-4 my-4 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-sm ${animation}`}>
-          <div className="md-4 xl:mb-0 xl:mr-80 mr-5">
-            <h2 className="text-lg font-bold">{wallet.id}</h2>
-            <h3 className="text-sm ml-5">Estiamted Balance</h3>
-            <div className="flex items-center text-[#04A66D] ml-4">
-              <h1 className="flex text-2xl ml-2"><FaCoins/></h1>
-              <h1 className="flex text-2xl ml-2">{wallet.balance}</h1>
-              <h1 className="flex text-2xl ml-2">USD</h1>
-            </div>
-          </div>
-          <div className="flex-1 grid grid-cols-2 xl:ml-32">
-            <div className="flex flex-col">
-              <div>
-                <p className="text-zinc-400">MetaTrade Username</p>
-                <div>{wallet.usernameMT5}</div>
-              </div>
-              <div className="mt-2">
-                <p className="text-zinc-400">MetaTrade Server</p>
-                <div>{wallet.server}</div>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div>
-                <p className="text-zinc-400">Leverage</p>
-                <div>{wallet.leverage}</div>
-              </div>
-              <div className="mt-2">
-                <p className="text-zinc-400">Company</p>
-                <div>{wallet.company}</div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col justify-between gap-2">
-            <div className="flex gap-2">
-              <button className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900">
-                refresh
-              </button>
-              <button 
-                className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900"
-                onClick={() => handleEditClick(wallet.id)}
-                >
-                <FaEdit/>
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-      <EditWallet 
-        isOpen={showEdit}
-        onClose={() => setShowEdit(false)}
-        wallet={countWallet}
-        walletmain={wallets}
-        setWallet={setWallet}
-      />
-    </div>
   );
 };
 
-const AddWalletModal  = ({isOpen, onClose, setWallet}) => {
+const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
   const [walletName, setWalletName] = useState('')
   const [usernameMT, setUsernameMT] = useState('')
   const [passwordMT, setPasswordMT] = useState('')
   const [serverMT, setserverMT] = useState('')
-  const [company, setCompany] = useState('not know')
-  const [leverage, setLeverage] = useState(500)
-  const [ballance, setBalance] = useState('0')
 
   const [animation, setAnimation] = useState('')
 
-  const handleSubmit = (e) =>{
+  const handleSubmit = async (e) =>{
     e.preventDefault();
-    const newWallet = {
-      id : walletName,
-      usernameMT5 : usernameMT,
-      passwordMT5 : passwordMT,
-      server : serverMT,
-      leverage : leverage,
-      company : company,
-      balance : ballance,
-    }
-    setWallet((prevBots) => [...prevBots, newWallet]);
 
-    setWalletName('')
-    setUsernameMT('')
-    setPasswordMT('')
-    setserverMT('')
-    setCompany('not know')
-    setLeverage(500)
-    setBalance('0')
-    onClose()
+    const Account = await checkAccountMT(usernameMT, passwordMT, serverMT);
+    if (Account) {
+      console.log(true)
+      const newWallet = {
+        id : walletName,
+        username_mt5 : usernameMT,
+        password_mt5 : passwordMT,
+        server : serverMT,
+        leverage : Account.account_info.leverage,
+        company : Account.account_info.company,
+        balance : Account.account_info.balance,
+      }
+
+      const response = await axios.post(`http://localhost:5000/api/send-account-mt`, {
+        name_account: walletName,
+        username_mt5: usernameMT,
+        password_mt5: passwordMT,
+        server: serverMT,
+        user_id: user_id,
+        bots: []
+      });
+
+      setWallet((prevBots) => [...prevBots, newWallet]);
+  
+      setWalletName('')
+      setUsernameMT('')
+      setPasswordMT('')
+      setserverMT('')
+      onClose()
+    } else {
+      console.log("can't add your account mt");
+    }
   }
 
   useEffect(() => {
@@ -283,46 +396,60 @@ const AddWalletModal  = ({isOpen, onClose, setWallet}) => {
   )
 }
 
-const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
+const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => {
+  const [name_account, setNameAccount] = useState(wallet.name_account)
+  const [usernameMT, setUsernameMT] = useState(wallet.username_mt5);
+  const [passwordMT, setPasswordMT] = useState('');
+  const [serverMT, setServerMT] = useState(wallet.server);
+
   const [animation, setAnimation] = useState('');
 
-  const [walletName, setWalletName] = useState('')
-  const [usernameMT, setUsernameMT] = useState('')
-  const [passwordMT, setPasswordMT] = useState('')
-  const [serverMT, setserverMT] = useState('')
-  const [company, setCompany] = useState('not know')
-  const [leverage, setLeverage] = useState('500')
-  const [ballance, setBalance] = useState('0')
+  useEffect(() => {
+    if (wallet) {
+      setUsernameMT(wallet.username_mt5);
+      setServerMT(wallet.server);
+    }
+  }, [wallet]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const updatedWallet = {
-      id: walletName ? walletName : wallet.id,
-      usernameMT5: usernameMT? usernameMT : wallet.usernameMT5,
-      passwordMT5: passwordMT? passwordMT : wallet.passwordMT5,
-      server: serverMT? serverMT : wallet.server,
-      leverage: leverage, // Note: You might have mixed up company and leverage fields
-      company: company, // Same here
-      balance: ballance,
+    const updatedAccount = {
+      user_id : user_id,
+      name_account: name_account || wallet.name_account,
+      old_username_mt5: wallet.username_mt5, // Assuming you have the old username as a reference
+      username_mt5: usernameMT || wallet.username_mt5,
+      password_mt5: passwordMT || wallet.password_mt5,
+      server: serverMT || wallet.server,
     };
 
+    try {
+      const response = await axios.post('http://localhost:5000/api/edit-account-mt', updatedAccount);
+      console.log('Edit successful:', response.data);
 
-    // Update the wallet list with the edited wallet
-    const updatedWallets = walletmain.map(w => w.id === wallet.id ? updatedWallet : w);
-    setWallet(updatedWallets); // Assuming setWallet is meant to update the wallets state in the parent component
-
-    setUsernameMT('')
-    setWalletName('')
-    setPasswordMT('')
-    setserverMT('')
-    onClose(); // Close the modal after submission
+      onClose(); // Close the modal on success
+    } catch (error) {
+      console.error("Failed to edit account:", error);
+    }
   };
 
-  const handleDelete = () => {
-    const updatedBots = walletmain.filter(wa => wa.id !== wallet.id);
-    setWallet(updatedBots);
-  }
+  const handleDelete = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/delete-account-mt', {
+        username_mt5: wallet.username_mt5,
+        user_id : user_id
+      });
+      console.log('Delete successful:', response.data);
+
+      // Remove the deleted account from the parent component's state
+      const updatedWallets = wallets.filter(w => w.username_mt5 !== wallet.username_mt5);
+      setWallet(updatedWallets);
+
+      onClose(); // Close the modal after successful deletion
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -338,9 +465,10 @@ const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
     }
   }, [isOpen]);
 
+  // Add form inputs for usernameMT, passwordMT, and serverMT
+  // Use the handleSubmit method on form submission
 
-
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
@@ -349,7 +477,7 @@ const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
         maxHeight: '90vh',
         overflowY: 'auto'
       }}>
-        <h1>Edit wallet {wallet.id}</h1>
+        <h1>Edit wallet {wallet.username_mt5}</h1>
         <form 
           className="px-5 pt-4 pb-2 rounded-lg text-sm text-zinc-400"
           onSubmit={handleSubmit}
@@ -365,9 +493,9 @@ const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
                 type="text" 
                 id="walletname"
                 className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
-                placeholder={wallet.id}
-                value={walletName}
-                onChange={(e) => setWalletName(e.target.value)}
+                placeholder={wallet.username_mt5}
+                value={name_account}
+                onChange={(e) => setNameAccount(e.target.value)}
               />
               <label 
                 htmlFor="usernameMT"
@@ -378,7 +506,7 @@ const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
                 type="text" 
                 id="usernameMT"
                 className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
-                placeholder={wallet.usernameMT5}
+                placeholder={wallet.username_mt5}
                 value={usernameMT}
                 onChange={(e) => setUsernameMT(e.target.value)}
               />
@@ -406,11 +534,11 @@ const EditWallet = ({isOpen, onClose, wallet, walletmain, setWallet}) => {
                 className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder={wallet.server}
                 value={serverMT}
-                onChange={(e) => setserverMT(e.target.value)}
+                onChange={(e) => setServerMT(e.target.value)}
               />
             </div>
             <div className="flex-col md:flex-row gap-2">
-              <button onClick={handleDelete} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">delete</button>
+            <button type = "button" onClick={handleDelete} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
             </div>
             <div className="flex justify-between mt-2 flex-col xl:flex-row gap-2">
               <button onClick={onClose} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 active:bg-gray-800">Cancel</button>

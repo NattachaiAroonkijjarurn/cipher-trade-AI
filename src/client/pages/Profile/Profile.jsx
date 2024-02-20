@@ -18,7 +18,6 @@ import DlAcc from "./DlAcc"
 import Commission from "./Commission"
 
 const Profile = () => {
-
   // Check Window Size for Responsive
   let isTabletMid = useMediaQuery({ query: "(max-width: 880px)" });
   let sideToNav = useMediaQuery({ query: "(max-width: 1200px)" });
