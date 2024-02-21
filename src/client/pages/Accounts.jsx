@@ -591,4 +591,208 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   )
 };
 
+const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => {
+  const [model_name, setModelName] = useState('');
+  const [timeframe, setTimeframe] = useState('');
+  const [lotsize, setLotSize] = useState('')
+  const [status, setStatus] = useState(true)
+  const [tpSlValues, setTpSlValues] = useState({tp:'', sl:''})
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newBot = {
+      model_name : model_name,
+      timeframe: timeframe,
+      lotsize : lotsize,
+      status: status,
+    };
+
+    
+
+    // Update the bots state with the new bot
+    // setWallet((wallets) => [...wallets, newBot]);
+    
+    // Reset form fields and close modal
+    setModelName('');
+    setTimeframe('');
+    setLotSize('');
+    onClose();
+  };
+
+  const [animation, setAnimation] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setAnimation("modal-enter");
+      setTimeout(() => {
+        setAnimation("modal-enter-active");
+      }, 10); // start the enter animation shortly after the component is rendered
+    } else {
+      setAnimation("modal-exit");
+      setTimeout(() => {
+        setAnimation("modal-exit-active");
+      }, 10); // start the exit animation
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    switch (timeframe) {
+      case '5m':
+        setTpSlValues({ tp: '0.00100', sl: '0.00050' });
+        break;
+      case '15m':
+        setTpSlValues({ tp: '0.00200', sl: '0.00100' });
+        break;
+      case '30m':
+        setTpSlValues({ tp: '0.00500', sl: '0.00250' });
+        break;
+      case '1h':
+        setTpSlValues({ tp: '0.00800', sl: '0.00400' });
+        break;
+      case '2h':
+        setTpSlValues({ tp: '0.01000', sl: '0.00500' });
+        break;
+      case '4h':
+        setTpSlValues({ tp: '0.01200', sl: '0.00600' });
+        break;
+      default:
+        setTpSlValues({ tp: '', sl: '' });
+    }
+  }, [timeframe]);
+  if (!isOpen) return null;
+  return (
+    <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-2/6 max-w-4xl ${animation}`}
+        style={{
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+        <h2 className="text-xl font-bold text-white">Add Bot Strategy</h2>
+        <div className="flex text-white flex-col">
+          <form 
+            className="px-5 pt-4 pb-2 rounded-lg"
+            onSubmit={handleSubmit}
+          >
+            <div>
+              <h1 className="text-lg">General setting</h1>
+            </div>
+            <div className="mb-4 mt-2">
+              <label 
+                htmlFor="botname"
+                className="block mb-2 text-sm font-medium text-zinc-400">Bot name
+              </label>
+              <input 
+                type="text"
+                id="botname"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5" 
+                placeholder="bot name"
+                required
+                value={bot_name}
+                onChange={(e) => setBotName(e.target.value)}
+              />
+            </div>
+            {/* Timeframe Select Dropdown */}
+            <div className="mb-4">
+              <label 
+                htmlFor="Currencypair"
+                className="block mb-2 text-sm font-medium text-zinc-400">Currency Pair
+                </label>
+                <select 
+                  id="Currencypair"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  required
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  <option value="" className="text-blue-200" disabled selected>Select currency pair</option>
+                  <option value="EURUSD">EURUSD</option>
+                  <option value="USDJPY">USDJPY</option>
+                  <option value="GBPUSD">GBPUSD</option>
+                  <option value="USDCHF">USDCHF</option>
+                  <option value="USDCAD">USDCAD</option>
+                  <option value="AUDUSD">AUDUSD</option>
+                </select>
+            </div>
+            {/* Timeframe Select Dropdown */}
+            <div className="mb-4">
+              <label 
+                htmlFor="timeframe"
+                className="block mb-2 text-sm font-medium text-zinc-400">Timeframe
+                </label>
+                <select 
+                  id="timeframe"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  required
+                  value={timeframe}
+                  onChange ={(e) => setTimeframe(e.target.value)}
+                > 
+                  <option value="" className="text-blue-200" disabled selected>Select timeframe</option>
+                  <option value="5m">5m</option>
+                  <option value="15m">15m</option>
+                  <option value="30m">30m</option>
+                  <option value="1h">1h</option>
+                  <option value="2h">2h</option>
+                  <option value="4h">4h</option>
+                </select>
+            </div>
+            <div>
+              <h1 className="text-lg">Strategy setting</h1>
+            </div>
+            <div className="flex justify-between items-end space-x-4 mt-2">
+              <div className="flex-1">
+                <label 
+                  htmlFor="lot size"
+                  className="block mb-2 text-sm font-medium text-zinc-400">Lot size
+                  </label>
+                  <input 
+                    type="text"
+                    id="lot size"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5" 
+                    placeholder="lot size"
+                    value={lotsize}
+                    onChange={(e) => setLotSize(e.target.value)}
+                    required
+                    />
+              </div>
+              {/* TP and SL Display */}
+              <div className="flex-1">
+                <label htmlFor="tp" className="block mb-2 text-sm font-medium text-zinc-400">Take Profit (TP)</label>
+                <input
+                  type="text"
+                  id="tp"
+                  placeholder="0.00000"
+                  className="bg-[#1E2226] border border-gray-600 text-zinc-400 text-sm rounded-lg w-full p-2.5 focus:outline-none"
+                  value={tpSlValues.tp}
+                  readOnly
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="sl" className="block mb-2 text-sm font-medium text-zinc-400">Stop Loss (SL)</label>
+                <input
+                  type="text"
+                  id="sl"
+                  placeholder="0.00000"
+                  className="bg-[#1E2226] border border-gray-600 text-zinc-400 text-sm rounded-lg w-full p-2.5 focus:outline-none"
+                  value={tpSlValues.sl}
+                  readOnly
+                />
+              </div>
+            </div>
+            <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
+              <button onClick={()=>{onClose();setAnimation("")}} className="bg-red-500 hover:bg-red-400 active:bg-red-600 rounded-lg p-2 px-5">
+                close
+              </button>
+              <button 
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-lg p-2 px-5 text-white">
+                  Add bot
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default Wallets;

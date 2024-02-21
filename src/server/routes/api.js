@@ -17,7 +17,7 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
 import { getModel } from '../Models/model.js'
 
 //AccountMT
-import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT } from '../mt/accountMt.js'
+import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../mt/accountMt.js'
 
 const router = express.Router()
 
@@ -123,4 +123,12 @@ router.post('/edit-account-mt', editAccountMT)
 
 // ======================================= delete in Account MT =========================================
 router.post('/delete-account-mt', deleteAccountMT)
+
+// ======================================= insert bot in Account MT =========================================
+router.post('/insert-bot-account-mt', insertBotInAccountMT)
+
+// ======================================= delete bot in Account MT =========================================
+router.post('/delete-bot-account-mt', deleteBotInAccountMT)
+
+
 export default router;
