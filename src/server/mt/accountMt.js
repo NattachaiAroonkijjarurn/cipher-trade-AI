@@ -47,7 +47,7 @@ const changeStatusBot = async (req, res) => {
   }
 }
 
-const editAccountMT = async (rqe, res) => {
+const editAccountMT = async (req, res) => {
   try {
     const {name_account, user_id, old_username_mt5, username_mt5, password_mt5, server} = req.body;
     await collection_account_mt.updateOne({
