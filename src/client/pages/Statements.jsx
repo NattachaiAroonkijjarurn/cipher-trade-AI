@@ -8,7 +8,7 @@ import "../layouts/DropDown/DropDown.css"
 
 // DatePicker
 import { DateRangePicker } from 'react-date-range';
-import { subDays, set } from 'date-fns';
+import { startOfYear, set } from 'date-fns';
 import moment from 'moment'; // for change the format of date
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -21,10 +21,18 @@ import '../layouts/layoutsCss/Tabs.css'
 // Normal CSS
 import "../pages/css/Statements.css"
 
+// Axios
+import axios from 'axios';
+
+// Fetch Data
+import { fetchUserId } from './fetch/fetchData';
+
 const Statements = () => {
 
     // Check Window Size for Responsive
     let isTabletMid = useMediaQuery({ query: "(max-width: 960px)" });
+    // Loading Page
+    const [isLoading, setIsLoading] = useState(true)
 
 // =========================================================== Tabs ===========================================================
     // useState to set which tab is selected
@@ -43,9 +51,39 @@ const Statements = () => {
     ]
 
 // =========================================================== Bot Filter + DropDown ===========================================================
+
     // useState to set state of DropDown and Bot Choosed
     const [dropped, setDropped] = useState(false)
-    const [botPick, setBotPick] = useState("All")
+
+    const [userId, setUserId] = useState('')
+    const [accountPick, setAccountPick] = useState("All")
+    const [accounts, setAccounts] = useState([{}])
+
+    const [isAccountFetched, setIsAccountFetched] = useState(false)
+
+    useEffect(() => {
+      // Fetch User MT Account
+      const fetchUser_mtAccount = async() => {
+        const fetchedUserId = await fetchUserId();
+        setUserId(fetchedUserId);
+        if (!fetchedUserId) return; 
+        try {
+          const response = await axios.get(`http://localhost:5000/api/account-mt`, {
+            params: { user_id: fetchedUserId },
+            withCredentials: true
+          });
+
+          setIsAccountFetched(true)
+          setAccounts(response.data)
+
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+      fetchUser_mtAccount()
+
+    },[])
 
     // Control DropDown in and out
     useEffect(() => {
@@ -67,11 +105,11 @@ const Statements = () => {
     // useState to set Start and End Date
     const [dateRange, setDateRange] = useState([
       {
-        startDate: set(subDays(new Date(), 7), { hours: 0, minutes: 0, seconds: 0 }),
+        startDate: set(startOfYear(new Date()), { hours: 0, minutes: 0, seconds: 0 }),
         endDate: new Date(),
         key: 'selection'
       }
-    ])
+    ]);
 
     // State to manage calendar visibility
     const [isCalendarVisible, setCalendarVisible] = useState(false);
@@ -82,60 +120,123 @@ const Statements = () => {
 
 // ===========================================================  Table ===========================================================
 // =========================================================== Order Table ===========================================================
-    // Sample Order Data
-    const demoOrderData = [
-      { id: 20000, currencyPair: "EURUSD", entryTime: 1706603347000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1706603347000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20002, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1706803347000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20004, currencyPair: "EURUSD", entryTime: 1706903347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20005, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-      { id: 20006, currencyPair: "EURUSD", entryTime: 1707003347000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-    ];
-
     // useState for keeping Order Data
     const [tableOrderData, setTableOrderData] = useState([]);
+    const [orders, setOrders] = useState([{}])
+    const [isOrderFetched, setIsOrderFetched] = useState(false)
+
+    // Fetch Order Data
+    useEffect(() => {
+      // Fetch Order
+      const fetchOrder = async() => {
+        try {
+          let orderResponse = await axios.get("http://localhost:5000/api/fetch-order", {
+            withCredentials: true,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json",
+            },
+          });
+
+          setOrders(orderResponse.data.orders)
+          setIsOrderFetched(true)
+
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+      fetchOrder()
+
+    }, [])
 
     // Update the Table when the date or bot filter change
     useEffect(() => {
-      if(botPick === "All") {
-        let fetchData = demoOrderData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-        fetchData = fetchData.map(data => ({ ...data, entryTime: new Date(data.entryTime) }));
-        setTableOrderData(fetchData);
+      // Update the Table when the date or bot filter changes
+      if (isOrderFetched) {
+        if (accountPick === "All") {
+          let fetchData = orders.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          fetchData = fetchData.map(data => ({ ...data, entrytime: new Date(data.entrytime) }));
+          setTableOrderData(fetchData);
+        } else {
+          // Handle filtering for specific bot (demoOrderData is not used here, use orders instead)
+          let mt5Username
+          accounts.forEach((account) => {
+            if(accountPick == account.name_account) {
+              mt5Username = account.username_mt5
+            }
+          })
+
+          let fetchBotData = orders.filter(data => data.username_mt5 === mt5Username);
+          let fetchData = fetchBotData.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          setTableOrderData(fetchData);
+        }
       }
-      else {
-        let fetchBotData = demoOrderData.filter(data => data.bot === botPick)
-        let fetchData = fetchBotData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-        setTableOrderData(fetchData);
-      }
-    }, [botPick, dateRange]);
+    }, [isOrderFetched, accountPick, dateRange, orders]);    
 
 // =========================================================== Position Table ===========================================================
-        // Sample Order Data
-        const demoPosData = [
-          { id: 30000, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30001, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30002, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30003, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-          { id: 30004, currencyPair: "EURUSD", entryTime: 1707180920000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25 },
-        ];
+    // useState for keeping Order Data
+    const [tablePosData, setTablePosData] = useState([]);
+    const [positions, setPositions] = useState([{}])
+    const [isPositionFetched, setIsPositionFetched] = useState(false)
 
-        // useState for keeping Order Data
-        const [tablePosData, setTablePosData] = useState([]);
+    // Fetch Order Data
+    useEffect(() => {
+      // Fetch Order
+      const fetchPosition = async() => {
+        try {
+          let positionResponse = await axios.get("http://localhost:5000/api/fetch-position", {
+            withCredentials: true,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json",
+            },
+          });
 
-        // Update the Table when the date or bot filter change
-        useEffect(() => {
-          if(botPick === "All") {
-            let fetchData = demoPosData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-            fetchData = fetchData.map(data => ({ ...data, entryTime: new Date(data.entryTime) }));
-            setTablePosData(fetchData);
-          }
-          else {
-            let fetchBotData = demoPosData.filter(data => data.bot === botPick)
-            let fetchData = fetchBotData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-            setTablePosData(fetchData);
-          }
-        }, [botPick, dateRange]);
+          setPositions(positionResponse.data.positions)
+          setIsPositionFetched(true)
+
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+      fetchPosition()
+
+    }, [])
+
+    // Update the Table when the date or bot filter change
+    useEffect(() => {
+      // Update the Table when the date or bot filter changes
+      if (isPositionFetched) {
+        if (accountPick === "All") {
+          let fetchData = positions.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          fetchData = fetchData.map(data => ({ ...data, entrytime: new Date(data.entrytime) }));
+          setTablePosData(fetchData);
+        } else {
+          // Handle filtering for specific bot (demoOrderData is not used here, use orders instead)
+          let mt5Username
+          accounts.forEach((account) => {
+            if(accountPick == account.name_account) {
+              mt5Username = account.username_mt5
+            }
+          })
+
+          let fetchBotData = positions.filter(data => data.username_mt5 === mt5Username);
+          let fetchData = fetchBotData.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          setTablePosData(fetchData);
+        }
+      }
+    }, [isPositionFetched, accountPick, dateRange, positions]); 
+
+
+// ===========================================================  Loading Animation ===========================================================
+
+    useEffect(() => {
+      if(isAccountFetched && isOrderFetched && isPositionFetched) {
+        setIsLoading(false)
+      }
+    }, [isAccountFetched, isOrderFetched, isPositionFetched])
 
 // ===================================================================================================================================
 
@@ -209,126 +310,197 @@ const Statements = () => {
             <p className="mr-2">Bot :</p>
             <div className="dropdown">
               <button className="dropdown-btn" aria-label="menu button" aria-haspopup="menu" aria-expanded="false" aria-controls="dropdown-menu" onClick={() => {setDropped(!dropped)}}>
-                  <span>{botPick}</span>
+                  <span>{accountPick}</span>
                   <span className="arrow"></span>
               </button>
               <ul className="dropdown-content" role="menu" id="dropdown-menu">
-                  <li onClick={() => {setBotPick("Bot1")}}><p>Bot1</p></li>
-                  <li onClick={() => {setBotPick("Bot2")}}><p>Bot2</p></li>
-                  <li onClick={() => {setBotPick("Bot3")}}><p>Bot3</p></li>
-                  <li onClick={() => {setBotPick("Bot4")}}><p>Bot4</p></li>
+                  {accounts.map((account) => (
+                    <li key={account.username_mt5} onClick={() => setAccountPick(account.name_account)}>
+                      <p>{account.name_account}</p>
+                    </li>
+                  ))}
               </ul>
           </div>
           </div>
           <div className="resetButton bg-[#3a3c3d] rounded-lg flex-shrink-0">
-            <button className="py-3 px-5" onClick={() => {setBotPick("All")}}>Reset</button>
+            <button className="py-3 px-5" onClick={() => {setAccountPick("All")}}>Reset</button>
           </div>
         </div>
 
         {/* Table */}
-        {selectedTab == 0 
-          ? <div className="mt-3">
-              <table className="text-center w-11/12" border="1">
-                <thead className="text-slate-500">
-                  {isTabletMid
-                    ? <tr className="border-y-2 border-slate-500">
+        {isLoading 
+          ?
+          <div className="loading-container h-[50vh]">
+            <div className="loading"></div>
+          </div>
+          :
+            <div className="mt-3"> 
+              {selectedTab == 0 
+                ? 
+                  <table className="text-center w-11/12" border="1">
+                    <thead className="text-slate-500">
+                      {isTabletMid
+                        ? <tr className="border-y-2 border-slate-500">
+                            <th className="py-2">ID</th>
+                            <th>Account</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Profit</th>
+                          </tr>
+                        : <tr className="border-y-2 border-slate-500 text-sm">
+                            <th className="py-2">ID</th>
+                            <th>Account</th>
+                            <th>Symbol</th>
+                            <th>Entry Time</th>
+                            <th>Exit Time</th>
+                            <th>Take Profit</th>
+                            <th>Stop Loss</th>
+                            <th>Side</th>
+                            <th>Price</th>
+                            <th>Lot</th>
+                            <th>Profit</th>
+                          </tr>
+                      }
+                    </thead>
+                    <tbody>
+                      {isTabletMid
+                        ? tableOrderData.map((row) => (
+                          <motion.tr
+                            key={row.order_id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="border-b border-slate-600"
+                          >
+                              <td className="pt-2">{row.order_id}</td>
+                              <td>
+                                {(() => {
+                                  let mtAccount = ""; // Initialize an empty string to store the matching name_account
+                                  accounts.forEach((element) => {
+                                    if (element.username_mt5 === row.username_mt5) {
+                                      mtAccount = element.name_account; // Set mtAccount if there is a match
+                                    }
+                                  });
+                                  return mtAccount; // Return the matched value for rendering
+                                })()}
+                              </td>
+                              <td>{row.symbol}</td>
+                              <td className={row.side === 'Buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
+                              <td>{(row.profit).toFixed(2)}</td>
+                            </motion.tr>
+                          ))
+                        : tableOrderData.map((row) => (
+                          <motion.tr
+                            key={row.order_id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="border-b border-slate-600"
+                          >
+                              <td className="pt-2">{row.order_id}</td>
+                              <td>
+                                {(() => {
+                                  let mtAccount = ""; // Initialize an empty string to store the matching name_account
+                                  accounts.forEach((element) => {
+                                    if (element.username_mt5 === row.username_mt5) {
+                                      mtAccount = element.name_account; // Set mtAccount if there is a match
+                                    }
+                                  });
+                                  return mtAccount; // Return the matched value for rendering
+                                })()}
+                              </td>
+                              <td>{row.symbol}</td>
+                              <td>{moment(row.entrytime).format('DD-MM-YYYY h:mm')}</td>
+                              <td>{moment(row.exittime).format('DD-MM-YYYY h:mm')}</td>
+                              <td>{(row.tp).toFixed(5)}</td>
+                              <td>{(row.sl).toFixed(5)}</td>
+                              <td className={row.side === 'buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
+                              <td>{(row.entryprice).toFixed(5)}</td>
+                              <td>{row.lotsize}</td>
+                              <td>{(row.profit).toFixed(2)}</td>
+                            </motion.tr>
+                          ))}
+                    </tbody>
+                  </table>
+              :
+                  <table className="text-center w-11/12" border="1">
+                    <thead className="text-slate-500">
+                      {isTabletMid
+                        ? <tr className="border-y-2 border-slate-500">
                         <th className="py-2">ID</th>
-                        <th>Currency Pair</th>
-                        <th>Bot</th>
-                        <th>Side</th>
-                        <th>Profit</th>
-                      </tr>
-                    : <tr className="border-y-2 border-slate-500">
-                        <th className="py-2">ID</th>
-                        <th>Currency Pair</th>
+                        <th>Account</th>
+                        <th>Symbol</th>
                         <th>Entry Time</th>
-                        <th>Exit Time</th>
-                        <th>Bot</th>
+                        <th>Side</th>
+                      </tr>
+                        : <tr className="border-y-2 border-slate-500">
+                        <th className="py-2">ID</th>
+                        <th>Account</th>
+                        <th>Symbol</th>
+                        <th>Entry Time</th>
                         <th>Side</th>
                         <th>Price</th>
                         <th>Lot</th>
-                        <th>Profit</th>
                       </tr>
-                  }
-                </thead>
-                <tbody>
-                  {isTabletMid
-                    ? tableOrderData.map((row) => (
-                        <tr key={row.id}>
-                          <td className="pt-2">{row.id}</td>
-                          <td>{row.currencyPair}</td>
-                          <td>{row.bot}</td>
-                          <td className={row.side === 'Buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
-                          <td>{row.profit}</td>
-                        </tr>
-                      ))
-                    : tableOrderData.map((row) => (
-                        <tr key={row.id}>
-                          <td className="pt-2">{row.id}</td>
-                          <td>{row.currencyPair}</td>
-                          <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
-                          <td>{row.exitTime}</td>
-                          <td>{row.bot}</td>
-                          <td className={row.side === 'Buy' ? 'text-[#07A66C]' : 'text-red-500'}>{row.side}</td>
-                          <td>{row.price}</td>
-                          <td>{row.lot}</td>
-                          <td>{row.profit}</td>
-                        </tr>
-                      ))}
-                </tbody>
-              </table>
-            </div>
-          : <div className="mt-3">
-              <table className="text-center w-11/12" border="1">
-                <thead className="text-slate-500">
-                  {isTabletMid
-                    ? <tr className="border-y-2 border-slate-500">
-                    <th className="py-2">ID</th>
-                    <th>Currency Pair</th>
-                    <th>Bot</th>
-                    <th>Entry Time</th>
-                    <th>Side</th>
-                  </tr>
-                    : <tr className="border-y-2 border-slate-500">
-                    <th className="py-2">ID</th>
-                    <th>Currency Pair</th>
-                    <th>Entry Time</th>
-                    <th>Bot</th>
-                    <th>Side</th>
-                    <th>Price</th>
-                    <th>Lot</th>
-                  </tr>
-                  }
-                </thead>
-                <tbody>
-                  {isTabletMid
-                    ? tablePosrData.map((row) => (
-                        <tr key={row.id}>
-                          <td className="pt-2">{row.id}</td>
-                          <td>{row.currencyPair}</td>
-                          <td>{row.bot}</td>
-                          <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
-                          <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
-                        </tr>
-                      ))
-                    : tablePosData.map((row) => (
-                        <tr key={row.id}>
-                          <td className="pt-2">{row.id}</td>
-                          <td>{row.currencyPair}</td>
-                          <td>{moment(row.entryTime).format('DD-MM-YYYY h:mm')}</td>
-                          <td>{row.bot}</td>
-                          <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
-                          <td>{row.price}</td>
-                          <td>{row.lot}</td>
-                        </tr>
-                      ))}
-                </tbody>
-              </table>
-            </div>
-        }
+                      }
+                    </thead>
+                    <tbody>
+                      {isTabletMid
+                        ? tablePosData.map((row) => (
+                          <motion.tr
+                            key={row.order_id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="border-b border-slate-600"
+                          >
+                              <td className="pt-2">{row.order_id}</td>
+                              <td>
+                                {(() => {
+                                  let mtAccount = ""; // Initialize an empty string to store the matching name_account
+                                  accounts.forEach((element) => {
+                                    if (element.username_mt5 === row.username_mt5) {
+                                      mtAccount = element.name_account; // Set mtAccount if there is a match
+                                    }
+                                  });
+                                  return mtAccount; // Return the matched value for rendering
+                                })()}
+                              </td>
+                              <td>{row.symbol}</td>
+                              <td>{moment(row.entrytime).format('DD-MM-YYYY h:mm')}</td>
+                              <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
+                            </motion.tr>
+                          ))
+                        : tablePosData.map((row) => (
+                          <motion.tr
+                            key={row.order_id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="border-b border-slate-600"
+                          >
+                              <td className="pt-2">{row.order_id}</td>
+                              <td>
+                                {(() => {
+                                  let mtAccount = ""; // Initialize an empty string to store the matching name_account
+                                  accounts.forEach((element) => {
+                                    if (element.username_mt5 === row.username_mt5) {
+                                      mtAccount = element.name_account; // Set mtAccount if there is a match
+                                    }
+                                  });
+                                  return mtAccount; // Return the matched value for rendering
+                                })()}
+                              </td>
+                              <td>{row.symbol}</td>
+                              <td>{moment(row.entrytime).format('DD-MM-YYYY h:mm')}</td>
+                              <td className={row.side === 'Buy' ? 'text-green-500' : 'text-red-500'}>{row.side}</td>
+                              <td>{row.entryprice}</td>
+                              <td>{row.lotsize}</td>
+                            </motion.tr>
+                          ))}
+                    </tbody>
+                  </table>    
+              }
+             </div>
+          } 
       </div>
     )
   };
   
   export default Statements;
-  
