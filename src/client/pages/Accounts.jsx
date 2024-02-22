@@ -38,7 +38,7 @@ const Wallets = () => {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userId, setUserId] = useState('')
 
-  const [isLoading , setIsLoading] = useState(true)
+  const [isLoading , setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +46,7 @@ const Wallets = () => {
       setUserId(fetchedUserId);
       if (!fetchedUserId) return; 
       try {
+        setIsLoading(true)
         const response = await axios.get(`http://localhost:5000/api/account-mt`, {
           params: { user_id: fetchedUserId },
           withCredentials: true
@@ -80,6 +81,7 @@ const Wallets = () => {
         setIsDataFetched(true);
         setWallet(updateAccounts);
       } catch (error) {
+        setIsLoading(false)
         console.error("Failed to fetch account MT:", error);
       }
     };
@@ -299,7 +301,7 @@ const Wallets = () => {
 };
 
 const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wallets, setWallet}) => {
-  const [animation, setAnimation] = useState('');
+  const [animation, setAnimation] = useState('modal-enter');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
@@ -377,7 +379,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
   const [passwordMT, setPasswordMT] = useState('')
   const [serverMT, setserverMT] = useState('')
 
-  const [animation, setAnimation] = useState('')
+  const [animation, setAnimation] = useState('modal-enter')
 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -426,6 +428,15 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
       console.log("can't add your account mt");
       setErrorMessage(accountDetails.data.message);
     }
+  }
+
+  const handleClose = () => {
+    setWalletName('')
+    setUsernameMT('')
+    setPasswordMT('')
+    setserverMT('')
+    setAnimation('')
+    onClose()
   }
 
   useEffect(() => {
@@ -519,7 +530,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
               <button 
                 className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
-                onClick={onClose}>
+                onClick={handleClose}>
                   Close
               </button>
               <button 
@@ -733,9 +744,11 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
 const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => {
   const [model_name, setModelName] = useState('');
   const [timeframe, setTimeframe] = useState('');
-  const [lotsize, setLotSize] = useState('')
+  const [lotsize, setLotSize] = useState('');
   const [status, setStatus] = useState('inactive')
   const [tpSlValues, setTpSlValues] = useState({tp:'', sl:''})
+
+  const [animation, setAnimation] = useState("modal-enter");
 
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -790,7 +803,15 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
     }
   };
 
-  const [animation, setAnimation] = useState("");
+  const handleClose = () => {
+    setModelName('');
+    setTimeframe('');
+    setLotSize('');
+    setAnimation("")
+    onClose();
+  }
+
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -938,7 +959,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
               <button
                 type="button" 
-                onClick={()=>{onClose();setAnimation("")}} className="bg-red-500 hover:bg-red-400 active:bg-red-600 rounded-lg p-2 px-5">
+                onClick={handleClose} className="bg-red-500 hover:bg-red-400 active:bg-red-600 rounded-lg p-2 px-5">
                 close
               </button>
               <button 
