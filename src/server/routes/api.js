@@ -13,6 +13,9 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
          twoFactor } 
          from '../controllers/ChangeSecurifyInfoSystem.js'
 
+// Controllers for Fetch Statement
+import { fetchOrder, fetchPosition } from '../controllers/FetchStatement.js'
+
 // Models
 import { getModel } from '../Models/model.js'
 
@@ -130,5 +133,16 @@ router.post('/insert-bot-account-mt', insertBotInAccountMT)
 // ======================================= delete bot in Account MT =========================================
 router.post('/delete-bot-account-mt', deleteBotInAccountMT)
 
+// ======================================= Fetch Statement =========================================
+
+// @ENDPOINT : http//localhost:5000/api/fetch-order
+// @METHOD : POST
+// Change Password
+router.get('/fetch-order', fetchOrder)
+
+// @ENDPOINT : http//localhost:5000/api/fetch-position
+// @METHOD : POST
+// Change Password
+router.get('/fetch-position', fetchPosition)
 
 export default router;

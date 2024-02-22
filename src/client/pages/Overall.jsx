@@ -8,7 +8,7 @@ import DropDown from '../layouts/DropDown/DropDown';
 
 // DatePicker
 import { DateRangePicker } from 'react-date-range';
-import { subDays, set } from 'date-fns';
+import { startOfYear, set } from 'date-fns';
 import moment from 'moment'; // for change the format of date
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -22,6 +22,12 @@ import 'chartjs-adapter-moment';
 // Normal CSS
 import './css/Overall.css'
 
+// Axios
+import axios from 'axios';
+
+// Fetch Data
+import { fetchUserId } from './fetch/fetchData';
+
 const Overall = () => {
   
     // Check Window Size for Responsive
@@ -29,24 +35,51 @@ const Overall = () => {
     let isTabletMidChart  = useMediaQuery({ query: "(max-width: 1280px)" });
     let isTabletMidWR = useMediaQuery({ query: "(max-width: 1160px)" });
 
-// =========================================================== Bot Filter + DropDown ===========================================================
-    // useState to set state of DropDown and Bot Choosed
+// =========================================================== Account Filter + DropDown ===========================================================
+    // useState to set state of DropDown and Account Choosed
+    const [userId, setUserId] = useState('')
+    const [accountPick, setAccountPick] = useState("All")
+    const [accounts, setAccounts] = useState([{}])
 
-    const [botPick, setBotPick] = useState("All")
+    const [isAccountFetched, setIsAccountFetched] = useState(false)
 
-    const handleBotSelection = (selectedBot) => {
-      setBotPick(selectedBot);
+    useEffect(() => {
+      // Fetch User MT Account
+      const fetchUser_mtAccount = async() => {
+        const fetchedUserId = await fetchUserId();
+        setUserId(fetchedUserId);
+        if (!fetchedUserId) return; 
+        try {
+          const response = await axios.get(`http://localhost:5000/api/account-mt`, {
+            params: { user_id: fetchedUserId },
+            withCredentials: true
+          });
+
+          setIsAccountFetched(true)
+          setAccounts(response.data)
+
+        } catch(err) {
+          console.log(err)
+        }
+      }
+
+      fetchUser_mtAccount()
+
+    },[])
+
+    const handleAccountSelection = (selectedAccount) => {
+      setAccountPick(selectedAccount);
     };
 
 // =========================================================== Date Filter ===========================================================
     // useState to set Start and End Date
     const [dateRange, setDateRange] = useState([
       {
-        startDate: set(subDays(new Date(), 7), { hours: 0, minutes: 0, seconds: 0 }),
+        startDate: set(startOfYear(new Date()), { hours: 0, minutes: 0, seconds: 0 }),
         endDate: new Date(),
         key: 'selection'
       }
-    ])
+    ]);
 
     // State to manage calendar visibility
     const [isCalendarVisible, setCalendarVisible] = useState(false);
@@ -57,33 +90,59 @@ const Overall = () => {
 
 // ===================================================================================================================================
 
-    // Sample Data
-    const demoData = [
-      { id: 20000, currencyPair: "EURUSD", entryTime: 1707369016000, exitTime: "24-12-2023", bot: "Bot4", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Win", balance: 105.25 },
-      { id: 20001, currencyPair: "EURUSD", entryTime: 1707369016000, exitTime: "24-12-2023", bot: "Bot1", side: "Sell", price: 1.0982, lot: 0.01, profit: 0.25, wl: "Loss", balance: -105.00 },
-      { id: 20002, currencyPair: "EURUSD", entryTime: 1707455416000, exitTime: "24-12-2023", bot: "Bot2", side: "Sell", price: 1.0982, lot: 0.01, profit: 6.25, wl: "Win", balance: 111.25 },
-      { id: 20003, currencyPair: "EURUSD", entryTime: 1707541816000, exitTime: "24-12-2023", bot: "Bot2", side: "Buy", price: 1.0982, lot: 0.01, profit: -20.78, wl: "Loss", balance: 101.47 },
-      { id: 20004, currencyPair: "EURUSD", entryTime: 1707541816000, exitTime: "24-12-2023", bot: "Bot3", side: "Sell", price: 1.0982, lot: 0.01, profit: 3.26, wl: "Win", balance: 104.73 },
-      { id: 20005, currencyPair: "EURUSD", entryTime: 1707628216000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 1.22, wl: "Win", balance: 105.95 },
-      { id: 20006, currencyPair: "EURUSD", entryTime: 1707628216000, exitTime: "24-12-2023", bot: "Bot3", side: "Buy", price: 1.0982, lot: 0.01, profit: 5.25, wl: "Loss", balance: 100.70 },
-    ];
+    // useState for keeping Order Data
+    const [chartData, setChartData] = useState([]);
+    const [orders, setOrders] = useState([{}])
+    const [isOrderFetched, setIsOrderFetched] = useState(false)
 
-    // useState for keeping Chart Data
-    const [chartData, setChartData] = useState(demoData);
-
-    // Update the Chart when the date or bot filter change
+    // Fetch Order Data
     useEffect(() => {
-      if(botPick === "All") {
-        let fetchData = demoData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-        fetchData = fetchData.map(data => ({ ...data, entryTime: new Date(data.entryTime) }));
-        setChartData(fetchData);
+      // Fetch Order
+      const fetchOrder = async() => {
+        try {
+          let orderResponse = await axios.get("http://localhost:5000/api/fetch-order", {
+            withCredentials: true,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json",
+            },
+          });
+
+          setOrders(orderResponse.data.orders)
+          setIsOrderFetched(true)
+
+        } catch(err) {
+          console.log(err)
+        }
       }
-      else {
-        let fetchBotData = demoData.filter(data => data.bot === botPick)
-        let fetchData = fetchBotData.filter(data => data.entryTime >= dateRange[0].startDate.getTime() && data.entryTime <= dateRange[0].endDate.getTime());
-        setChartData(fetchData);
+
+      fetchOrder()
+
+    }, [])
+
+    // Update the Table when the date or account filter change
+    useEffect(() => {
+      // Update the Table when the date or account filter changes
+      if (isOrderFetched) {
+        if (accountPick === "All") {
+          let fetchData = orders.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          fetchData = fetchData.map(data => ({ ...data, entrytime: new Date(data.entrytime) }));
+          setChartData(fetchData);
+        } else {
+          // Handle filtering for specific account (demoOrderData is not used here, use orders instead)
+          let mt5Username
+          accounts.forEach((account) => {
+            if(accountPick == account.name_account) {
+              mt5Username = account.username_mt5
+            }
+          })
+
+          let fetchAccountData = orders.filter(data => data.username_mt5 === mt5Username);
+          let fetchData = fetchAccountData.filter(data => data.entrytime >= dateRange[0].startDate.getTime() && data.entrytime <= dateRange[0].endDate.getTime());
+          setChartData(fetchData);
+        }
       }
-    }, [botPick, dateRange]);
+    }, [isOrderFetched, accountPick, dateRange, orders]);
 
 //  ========================================================== Doughnut Chart ==========================================================
     // Create a reusable function to create doughnut charts
@@ -223,9 +282,9 @@ const Overall = () => {
       let sellCount = 0
 
       chartData.forEach(entry => {
-        if (entry.side === "Buy") {
+        if (entry.side === "buy") {
           buyCount += 1;
-        } else if (entry.side === "Sell") {
+        } else if (entry.side === "sell") {
           sellCount += 1;
         }
       })
@@ -256,9 +315,9 @@ const Overall = () => {
       let buyLossCount = 0
 
       chartData.forEach(entry => {
-        if (entry.wl === "Win" && entry.side === "Buy") {
+        if (entry.profit >= 0 && entry.side === "buy") {
           buyWinCount += 1;
-        } else if (entry.wl === "Loss" && entry.side === "Buy") {
+        } else if (entry.profit < 0 && entry.side === "buy") {
           buyLossCount += 1;
         }
       })
@@ -288,9 +347,9 @@ const Overall = () => {
       let sellLossCount = 0
 
       chartData.forEach(entry => {
-        if (entry.wl === "Win" && entry.side === "Sell") {
+        if (entry.profit >= 0 && entry.side === "sell") {
           sellWinCount += 1;
-        } else if (entry.wl === "Loss" && entry.side === "Sell") {
+        } else if (entry.profit < 0 && entry.side === "sell") {
           sellLossCount += 1;
         }
       })
@@ -311,7 +370,7 @@ const Overall = () => {
     // useState to keep Profit Growth Data
     const [profitGrowthData, setProfitGrowthData] = useState([])
 
-    // Update the Line Chart data when the date or bot filter change
+    // Update the Line Chart data when the date or account filter change
     useEffect(() => {
       // Example calculation, replace this with your actual logic
       const calculateLineChartData = () => {
@@ -562,17 +621,17 @@ const Overall = () => {
           </ul>
         </div>
 
-        {/* Bot Filter */}
-        <div className="bot-filter whitespace-pre flex flex-auto items-center w-[16em] z-60 relative">
-          <p className="mr-2">Bot :</p>
+        {/* Account Filter */}
+        <div className="account-filter whitespace-pre flex flex-auto items-center w-[16em] z-60 relative">
+          <p className="mr-2">Account :</p>
           <DropDown
-            botPick = {botPick}
-            onBotSelect={handleBotSelection}
+            accountPick = {accountPick}
+            onAccountSelect={handleAccountSelection}
           />
         </div>
         {/* Reset Button */}
         <div className="resetButton bg-[#3a3c3d] rounded-lg flex-shrink-0">
-          <button className="py-3 px-5" onClick={() => {setBotPick("All")}}>Reset</button>
+          <button className="py-3 px-5" onClick={() => {setAccountPick("All")}}>Reset</button>
         </div>
       </div>
 

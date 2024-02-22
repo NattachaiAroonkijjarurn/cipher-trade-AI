@@ -494,7 +494,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
     }
   }, [isOpen]);
 
-  // Add form inputs for usernameMT, passwordMT, and serverMT
+  // Add form inputs for usernameMT, passwordMT, and serverMT ====
   // Use the handleSubmit method on form submission
 
   if (!isOpen) return null;
