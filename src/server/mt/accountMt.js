@@ -20,7 +20,30 @@ const getAccountMT = async (req, res) => {
 
 const sendAccountMT = async (req, res) => {
   try {
-    const result = await collection_account_mt.insertOne(req.body); // Store the result of the insertion
+    const newAccountMT = req.body
+
+    newAccountMT.username_mt5 = parseInt(newAccountMT.username_mt5, 10);
+
+    if (isNaN(newAccountMT.username_mt5)) {
+      return res.status(400).json({ message: "Username MT5 must be a numeric value." });
+    }
+
+    const existingBotNameAccount = await collection_account_mt.findOne({
+      user_id : newAccountMT.user_id,
+      name_account : newAccountMT.name_account
+    })
+    if (existingBotNameAccount) {
+      return res.status(400).json({ message: "Name account already exists." });
+    }
+
+    const existingBotUsername_MT = await collection_account_mt.findOne({
+      user_id : newAccountMT.user_id,
+      username_mt5 : newAccountMT.username_mt5
+    })
+    if (existingBotUsername_MT) {
+      return res.status(400).json({ message: "Username MT5 already exists." });
+    }
+    const result = await collection_account_mt.insertOne(newAccountMT); // Store the result of the insertion
     res.status(201).json({ success: true, data: result });
   } catch (error) {
     console.error(error);
@@ -83,6 +106,11 @@ const insertBotInAccountMT = async (req, res) => {
   try {
     const { user_id, username_mt5, bot } = req.body;
     const model_name = bot.model_name;
+
+    bot.lotsize = parseFloat(bot.lotsize)
+    if (isNaN(bot.lotsize)) {
+      return res.status(400).json({ message: "lot size must be a numeric value."});
+    }
 
     const existingBot = await collection_account_mt.findOne({
       "username_mt5": username_mt5,
