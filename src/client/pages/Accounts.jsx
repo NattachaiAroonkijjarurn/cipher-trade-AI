@@ -38,7 +38,7 @@ const Wallets = () => {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userId, setUserId] = useState('')
 
-  const [isLoading , setIsLoading] = useState(false)
+  const [isLoading , setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,7 +46,6 @@ const Wallets = () => {
       setUserId(fetchedUserId);
       if (!fetchedUserId) return; 
       try {
-        setIsLoading(true)
         const response = await axios.get(`http://localhost:5000/api/account-mt`, {
           params: { user_id: fetchedUserId },
           withCredentials: true
@@ -149,12 +148,40 @@ const Wallets = () => {
 
   const toggleModal = () => setIsModalOpen(!isModalOpen)
 
-  return (
-    isLoading
-      ? <div className="loading-container">
-            <div className="loading"></div>
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading"></div>
+      </div>
+    );
+  }
+  
+  // If not loading and wallets array is empty, show the empty message
+  if (!isLoading && wallets.length === 0) {
+    return (
+      <div className="page-container flex flex-col mt-7 ml-auto">
+        <h1 className="title text-2xl text-white ml-5">
+          Accounts
+        </h1>
+        <div className="flex justify-between mx-5">
+          <div className="flex justify-end flex-1">
+            <button 
+              className="rounded-lg bg-blue-600 text-white whitespace-nowrap py-1 px-2 hover:bg-blue-500 active:bg-blue-700"
+              onClick={toggleModal}>
+              + add wallet
+            </button>
+            <AddWalletModal isOpen={isModalOpen} onClose={toggleModal} setWallet={setWallet} user_id={userId}
+            />
           </div>
-      :
+        </div>
+        <div className="text-center text-white mt-10">
+          Your account MT is empty.
+        </div>
+      </div>
+    );
+  }
+
+  return (
       <div className="page-container flex flex-col mt-7 ml-auto">
         <h1 className="title text-2xl text-white ml-5">
           Accounts
@@ -226,7 +253,7 @@ const Wallets = () => {
                 </div>
               </div>
             </div>
-            {wallet.bots.map((bot, botindex) => (
+            {wallet.bots?.map((bot, botindex) => (
               <div key={bot.model_name || botindex} className={`bot-info bg-[#1E2228] text-white p-4 my-2 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-sm ${animation}`}>
                 <div className="md-4 mr-5">
                   <h2 className="text-sm font-bold text-blue-500">{bot.model_name}</h2>
@@ -365,7 +392,7 @@ const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wal
             type = "submit" 
             onClick={handleSubmit}
             className="bg-blue-600 rounded-lg p-2 px-5 text-white hover:bg-blue-500 active:bg-blue-700" >
-              Done
+              Ok
           </button>
         </div>
       </div>
@@ -378,6 +405,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
   const [usernameMT, setUsernameMT] = useState('')
   const [passwordMT, setPasswordMT] = useState('')
   const [serverMT, setserverMT] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const [animation, setAnimation] = useState('modal-enter')
 
@@ -385,6 +413,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
 
   const handleSubmit = async (e) =>{
     e.preventDefault();
+    setIsLoading(true)
 
     const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
       username: usernameMT,
@@ -404,6 +433,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
       }
 
       try {
+        
         const response = await axios.post(`http://localhost:5000/api/send-account-mt`, {
           name_account: walletName,
           username_mt5: usernameMT,
@@ -414,17 +444,20 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
         });
 
         setWallet((prevBots) => [...prevBots, newWallet]);
-    
+        
+        setIsLoading(false)
         setWalletName('')
         setUsernameMT('')
         setPasswordMT('')
         setserverMT('')
         onClose()
       } catch (error) {
+        setIsLoading(false)
         const errorMsg = error.response?.data?.message || "An unexpected error occurred.";
         setErrorMessage(errorMsg);
       }
     } else {
+      setIsLoading(false)
       console.log("can't add your account mt");
       setErrorMessage(accountDetails.data.message);
     }
@@ -453,6 +486,23 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
     }
   }, [isOpen]);
 
+  if (isLoading) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 text-white ${animation}`}
+        style={{
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+          <div className="loading-container h-20">
+            <div className="loading"></div>
+          </div>
+          <p className="flex justify-center">Just a moment please...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!isOpen) return null
   return (
     <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
@@ -461,7 +511,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
         maxHeight: '90vh',
         overflowY: 'auto'
       }}>
-        <h1 className="text-xl text-center">Add Wallet</h1>
+        <h1 className="text-xl text-center mt-2">Add account mt5</h1>
         <div className="flex text-white flex-col">
           <form
             className="px-5 pt-4 pb-2 rounded-lg flex-1"
@@ -472,12 +522,12 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
                 htmlFor="walletname"
                 className="block mb-2 "
                 >
-                Wallet name
+                Account name
               </label>
               <input 
                 type="text" 
                 id="walletname"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="wallet name"
                 required
                 value={walletName}
@@ -491,7 +541,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="text" 
                 id="usernameMT"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="username mt5"
                 required
                 value={usernameMT}
@@ -505,7 +555,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="password" 
                 id="PasswordMT"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="password mt5"
                 required
                 value={passwordMT}
@@ -519,7 +569,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="text" 
                 id="server"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="server mt5"
                 required
                 value={serverMT}
@@ -552,10 +602,12 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   const [passwordMT, setPasswordMT] = useState('');
   const [serverMT, setServerMT] = useState(wallet.server);
 
-  const [animation, setAnimation] = useState('');
+  const [animation, setAnimation] = useState('modal-enter');
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("")
+
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   useEffect(() => {
     if (wallet) {
@@ -614,6 +666,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   };
 
   const handleDelete = async () => {
+    setShowConfirmDelete(false)
     try {
       setLoading(true);
       const response = await axios.post('http://localhost:5000/api/delete-account-mt', {
@@ -649,6 +702,53 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
 
   if (!isOpen) return null;
 
+  if (showConfirmDelete) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/6 xl:w-1/4 max-w-4xl ${animation}`} 
+          style={{
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+          <h2 className="text-lg text-white text-center mb-10">
+            Are you sure you want to delete account <span className="text-blue-500">{wallet.name_account}</span> ?
+          </h2>
+          {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+          <div className="flex justify-between flex-col md:flex-row gap-2">
+            <button 
+              className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
+              onClick={() => setShowConfirmDelete(false)}>
+                Close
+            </button>
+            <button 
+              type = "submit" 
+              onClick={handleDelete}
+              className="bg-blue-600 rounded-lg p-2 px-7 text-white hover:bg-blue-500 active:bg-blue-700" >
+                Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 text-white ${animation}`}
+      style={{
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+          <div className="loading-container h-20">
+              <div className="loading"></div>
+          </div>
+          <p className="flex justify-center">Just a moment please...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
       <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 text-white ${animation}`}
@@ -665,7 +765,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
           </>
         ) : (
           <>
-            <h1 className="text-xl text-center">Edit Account MT <span className="text-blue-500">{wallet.name_account}</span></h1>
+            <h1 className="text-xl text-center mt-2">Edit Account MT <span className="text-blue-500">{wallet.name_account}</span></h1>
             <form 
               className="px-5 pt-4 pb-2 rounded-lg text-sm text-zinc-400"
               onSubmit={handleSubmit}
@@ -680,7 +780,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="walletname"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.username_mt5}
                     value={name_account}
                     onChange={(e) => setNameAccount(e.target.value)}
@@ -693,7 +793,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="usernameMT"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.username_mt5}
                     value={usernameMT}
                     onChange={(e) => setUsernameMT(e.target.value)}
@@ -719,7 +819,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="server"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.server}
                     value={serverMT}
                     onChange={(e) => setServerMT(e.target.value)}
@@ -727,11 +827,11 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                 </div>
                 {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
                 <div className="flex-col md:flex-row gap-2">
-                <button type = "button" onClick={handleDelete} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
+                <button type = "button" onClick={() => setShowConfirmDelete(true)} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
                 </div>
                 <div className="flex justify-between mt-2 flex-col xl:flex-row gap-2">
                   <button onClick={onClose} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 active:bg-gray-800">Cancel</button>
-                  <button type="submit" className="bg-red-500 text-white px-8 py-2 rounded-lg hover:bg-red-400 active:bg-red-600">OK</button>
+                  <button type="submit" className="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-red-400 active:bg-red-600">OK</button>
                 </div>
             </form>
           </>
@@ -859,7 +959,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
           maxHeight: '90vh',
           overflowY: 'auto'
         }}>
-        <h1 className="text-xl text-center">Add bot Strategy</h1>
+        <h1 className="text-xl text-center mt-2">Add bot Strategy</h1>
         <div className="flex text-white flex-col">
           <form 
             className="px-5 pt-4 pb-2 rounded-lg"
@@ -876,7 +976,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
                 </label>
                 <select 
                   id="model_name"
-                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                   required
                   value={model_name}
                   onChange={(e) => setModelName(e.target.value)}
@@ -898,7 +998,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
                 </label>
                 <select 
                   id="timeframe"
-                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                   required
                   value={timeframe}
                   onChange ={(e) => setTimeframe(e.target.value)}
@@ -924,7 +1024,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
                   <input 
                     type="number"
                     id="lot size"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5" 
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5" 
                     placeholder="lot size"
                     value={lotsize}
                     onChange={(e) => setLotSize(e.target.value)}

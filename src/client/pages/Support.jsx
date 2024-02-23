@@ -1,59 +1,166 @@
-import React from 'react';
+import React, {useState, useEffect, useRef} from 'react';
+import "./css/Support.css";
+import { GoDotFill } from "react-icons/go";
+import { useNavigate } from 'react-router-dom';
 
-import "../layouts/layoutsCss/Support.css"
+import atomate from '../img/atomate.png';
+import speed from '../img/speed.jpg';
+import speed2 from '../img/speed2.jpg';
+
+import emotion from '../img/emotion.jpg';
+import backtesting from '../img/backtesting.png';
+import data_analysis from '../img/data-analysis.jpg'
+
+import logo from '../img/logo.png'
+
+
+function useOnScreen(ref) {
+  const [isIntersecting, setIntersecting] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIntersecting(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref]);
+
+  return isIntersecting;
+}
+
 
 const Support = () => {
-  return (
-    <div className="site-container bordered">
-      <div className="w-full">
-        <div className="bg-grid border-b-1 border-gray-300 dark:border-gray-700 lg:grid lg:grid-cols-16 lg:grid-rows-8 lg:bg-grid-gray-300 lg:dark:bg-grid-gray-700">
-          {/* Green Section */}
-          <div className="col-span-7 row-span-8 flex flex-col justify-between gap-32 bg-green-500 px-15 py-32 text-gray-100 dark:bg-green-400 dark:text-gray-900">
-            <h1 className="max-w-[600px] typography text-heading-lg font-roobert">
-              We build accessible and reliable cloud infrastructure.
-            </h1>
-            <div className="flex max-w-[420px] flex-col gap-30">
-              <div className="typography text-body-xl font-montreal">
-                <p>Render helps software teams ship products fast and at any scale...</p>
-              </div>
-            </div>
-          </div>
+  let navigate = useNavigate();
+  const [animate, setAnimate] = useState(false);
+  const [animate2, setAnimate2] = useState('slid-up');
 
-          {/* Image Section */}
-          <div className="relative w-full overflow-hidden lg:col-span-6 lg:col-start-11 lg:row-span-7">
-            <img
-              alt=""
-              loading="lazy"
-              decoding="async"
-              data-nimg="fill"
-              src="https://cdn.sanity.io/images/hvk0tap5/production/05dd05aa7f84df7fa465fd67c666f15735225834-2160x2516.jpg?w=1600&fit=max&auto=format"
-              style={{ position: 'absolute', height: '100%', width: '100%', inset: '0px', objectFit: 'cover', color: 'transparent' }}
-            />
+  useEffect(() => {
+    // Trigger the animation shortly after the component mounts
+    const timer = setTimeout(() => setAnimate(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleClickModel = () => {
+    navigate('/aiTradingBot')
+  }
+
+  const handleClickAccount = () => {
+    navigate('/accounts')
+  }
+
+  const handleClickStatement = () => {
+    navigate('/statements')
+  }
+
+  const handleClickOverall = () => {
+    navigate('/overall')
+  }
+
+  const handleClickProfile = () => {
+    navigate('/profile/#my-profile')
+  }
+
+  const ref1 = useRef();
+  const ref2 = useRef();
+  const ref3 = useRef();
+  const ref4 = useRef();
+  const isVisible1 = useOnScreen(ref1);
+  const isVisible2 = useOnScreen(ref2);
+  const isVisible3 = useOnScreen(ref3);
+  const isVisible4 = useOnScreen(ref4);
+  return (
+    <div className={`page-container ${animate ? 'slide-up-animation' : animate2}`}>
+      <div className="flex flex-col">
+        <div ref={ref1} className={`flex flex-col xl:flex-row justify-between gap-20 ${isVisible1 ? 'slide-up-animation' : ''}`}>
+          <img className="h-screen w-[1000px] object-cover" src={atomate} alt="" />
+          <div className='flex w-full h-screen max-w-[800px]'>
+            <div className="text-container max-w-[400px] text-blue-200 mx-10 my-10 py-5 flex flex-col justify-center">
+              <div className='flex items-center text-[60px] font-semibold'>Automation</div>
+              <div className='flex items-center font-medium text-xl items-end mt-20'> Explain how AI trading bots can automate trading strategies, allowing traders to execute trades 24/7 without manual intervention.</div>
+            </div>
           </div>
         </div>
-
-        {/* Our Team Section */}
-        <div className="pt-15 lg:py-[54px] lg:pt-[54px]">
-          <div className="lg:grid lg:grid-cols-16 lg:grid-rows-8">
-            <div className="flex flex-col justify-center gap-30 p-15 lg:col-span-6 lg:col-start-2 lg:row-span-6 lg:row-start-2 lg:gap-90">
-              <div className="typography text-heading-lg font-roobert">Our Team</div>
-              <div className="flex max-w-[420px] flex-col gap-30 md:max-w-[550px] xl:max-w-[420px]">
-                <div className="typography text-body-lg font-montreal">
-                  <p>Render is headquartered in San Francisco, California, with remote team members...</p>
+        <div ref={ref2} className={`flex flex-col xl:flex-row justify-between gap-20 ${isVisible2 ? 'slide-up-animation' : ''}`}>
+          <div className='flex w-full h-screen'>
+            <div className="text-container max-w-[500px] text-white mx-32 my-10 py-5 flex flex-col justify-center">
+              <div className='flex items-center text-[60px] font-semibold'>Speed</div>
+              <div className='flex items-center font-medium text-xl mt-10'> Explain how AI trading bots can automate trading strategies, allowing traders to execute trades 24/7 without manual intervention.</div>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <img className="object-cover h-[300px] w-[500px] xl:h-[500px] xl:w-[800px]" src={speed} alt="" />
+          </div>
+          <div className="flex items-center">
+            <img className="object-cover h-[300px] w-[500px] xl:h-[300px] xl:w-[800px]" src={speed2} alt="" />
+          </div>
+        </div>
+        <div ref={ref3} className={`flex xl:h-screen xl:justify-center xl:items-center text-white text-medium ${isVisible3 ? 'slide-up-animation' : ''}`}>
+          <div className="grid grid-rows gap-10 mx-20 xl:grid-cols-3">
+            <div className="border border-1 border-zinc-800 rounded-lg p-10 flex flex-col items-center bg-blue-950 text-white">
+              <div className="font-semibold text-center text-[30px] ">Data Analysis</div>
+              <img src={emotion} alt="Data Analysis" className="h-72 w-full object-cover mt-8"/> {/* Increased margin-top here */}
+              <p className="text-center mt-20 font-medium mb-5">Discuss how AI bots can analyze vast amounts of market data to identify trading opportunities based on historical trends and patterns.</p>
+            </div>
+            <div className="border border-1 border-zinc-800 rounded-lg p-10 flex flex-col items-center bg-sky-950 text-white">
+              <div className="font-semibold text-center text-[30px]">Emotionless Trading</div>
+              <img src={backtesting} alt="Emotionless Trading" className="h-72 w-full object-cover mt-8"/> {/* Increased margin-top here */}
+              <p className="text-center mt-20 font-medium mb-5">Point out that bots operate based on algorithms and data, eliminating emotional biases that often lead to poor trading decisions.</p>
+            </div>
+            <div className="border border-1 border-zinc-800 rounded-lg p-10 flex flex-col items-center bg-cyan-950 text-white">
+              <div className="font-semibold text-center text-[30px]">Backtesting</div>
+              <img src={data_analysis} alt="Backtesting" className="h-72 w-full object-cover mt-8"/> {/* Increased margin-top here */}
+              <p className="text-center mt-20 font-medium mb-5">Mention the capability of AI bots to backtest trading strategies using historical data, helping to refine and improve their effectiveness.</p>
+            </div>
+          </div>
+        </div>
+        <div ref={ref4} className={`grid bg-[#1E2226] h-full text-white text-medium ${isVisible4 ? 'slide-up-animation' : ''}`}>
+          <div className='divide-y mx-32 divide-zinc-500'>
+            <div className='flex flex-col xl:flex-row justify-between my-10'>
+              <div className='flex flex-row items-center mb-3 justify-center'>
+                <img className = "h-16 w-16"src={logo} alt="" />
+                <div className='text-blue-500 font-semibold ml-5'>CipherTrade</div>
+              </div>
+              <div className='flex-1 grid grid-cols-2 xl:grid-cols-3 place-content-around'>
+                <div className='flex justify-center'>
+                  <div className='flex flex-col gap-2 items-start mb-2 xl:mb-0'>
+                    <div className='mb-3'>PAGE</div>
+                    <button className='hover:text-blue-500 text-zinc-400' onClick={handleClickModel}>Model</button>
+                    <button className='hover:text-blue-500 text-zinc-400' onClick={handleClickAccount}>Account</button>
+                    <button className='hover:text-blue-500 text-zinc-400' onClick={handleClickStatement}>Statement</button>
+                    <button className='hover:text-blue-500 text-zinc-400' onClick={handleClickOverall}>Overall</button>
+                    <button className='hover:text-blue-500 text-zinc-400' onClick={handleClickProfile}>Profile</button>
+                  </div>
                 </div>
-                {/* Button with dynamic background animation */}
-                <a className="ease group relative z-[1] flex cursor-pointer items-center justify-between overflow-hidden font-montreal transition-colors motion-safe:duration-150 motion-reduce:duration-0 motion-safe:lg:duration-300 buttonStyles text-body-md py-10 px-15 gap-15 bg-transparent text-gray-900 dark:text-gray-100 border-1 border-gray-900 dark:border-gray-100 active:hover:text-gray-100 lg:hover:text-gray-100 dark:active:text-gray-900 dark:lg:hover:text-gray-900 self-start" href="/careers#open-roles">
-                  <span className="buttonBackground bg-gray-900 dark:bg-gray-100"></span>
-                  <span className="relative z-[1] inline-block translate-x-0 transition-transform">Explore Open Roles</span>
-                  {/* SVG Arrow */}
-                  <svg className="arrowStyles w-15 h-15 transform rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none">
-                    {/* SVG content */}
-                  </svg>
-                </a>
+                <div className='flex justify-center'>
+                  <div className='flex flex-col gap-2 item-start mb-2 xl:mb-0'>
+                    <div className='mb-3'>SYMBOL</div>
+                    <div className='text-zinc-400'>EURUSD</div>
+                    <div className='text-zinc-400'>GBPUSD</div>
+                    <div className='text-zinc-400'>AUDUSD</div>
+                    <div className='text-zinc-400'>USDCHF</div>
+                    <div className='text-zinc-400'>USDCAD</div>
+                  </div>
+                </div>
+                <div className='flex justify-center ml-24 xl:ml-0'>
+                  <div className='flex flex-col gap-2 items-start '>
+                    <div className='mb-3'>CONTACT</div>
+                    <div className='text-zinc-400 line-clamp-1'>s6404062630589@kmutnb.ac.th</div>
+                    <div className='text-zinc-400 line-clamp-1'>s6404062610073@kmutnb.ac.th</div>
+                    <div className='text-zinc-400 line-clamp-1'>cipher_trade@gmail.com</div>
+                  </div>
+                </div>
               </div>
             </div>
-            {/* More sections can continue here */}
+            <div >
+              <div className='mt-2 text-sm font-medium text-blue-200 mb-2'>CipherTrade@2023-2024</div>
+            </div>
           </div>
+          
         </div>
       </div>
     </div>
