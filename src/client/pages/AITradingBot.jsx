@@ -6,6 +6,8 @@ import { fetchUsername } from "./fetch/fetchData";
 import "../layouts/DropDown/DropDown.css"
 import "../layouts/layoutsCss/PopUp.css"
 
+import "../pages/css/Profile.css"
+
 
 import axios from 'axios'
 
@@ -49,17 +51,21 @@ const AITradingBot = () => {
 
   const [isDataFetched, setIsDataFetched] = useState(false);
 
-  
+  const [isLoading, setLoading] = useState(false)
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     // useEffect for fetching data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const response = await axios.get('http://localhost:5000/api/model');
         setTableData(response.data); 
         setDefaultbot(response.data);
-        await fetchUsername(setUsername); // Ensure fetchUsername is async or handled correctly
+        setUsername(await fetchUsername()); // Ensure fetchUsername is async or handled correctly
         setIsDataFetched(true); // Indicate that data fetching is complete
       } catch (error) {
+        setLoading(false)
         console.error("Failed to fetch bots:", error);
       }
     };
@@ -81,10 +87,12 @@ const AITradingBot = () => {
       "aria-expanded",
       dropdownBtn.getAttribute("aria-expanded") === "true" ? "false" : "true"
     );
-  },[dropped])
+  }, [dropped]);
+
 
   useEffect(() => {
     if (isDataFetched) { // Check if data has been fetched
+      setLoading(false)
       setAnimation('slid-up');
       setTimeout(() => {
         setAnimation('slid-up-active');
@@ -117,99 +125,110 @@ const AITradingBot = () => {
 
 
   return (
-    <div className="page-container flex flex-col mt-7 ml-auto">
-      <h1 className="title text-2xl text-white ml-5">Bot Trading Strategies {username}</h1>
-      <div className={`flex justify-between mx-5`}>
-        <div className="flex justify-end flex-1">
-          <div className="dropdown w-24">
-            <button className="dropdown-btn text-sm" aria-label="menu button" aria-haspopup="menu" aria-expanded="false" aria-controls="dropdown-menu" onClick={() => setDropped(!dropped)}>
-              <span>{botPick}</span>
-              <span className="arrow"></span>
-            </button>
-            <ul className="dropdown-content text-sm" role="menu" id="dropdown-menu">
-              <li onClick={() => {setBotPick("All")}}><p>All</p></li>
-              <li onClick={() => {setBotPick("EURUSD")}}><p>EURUSD</p></li>
-              <li onClick={() => {setBotPick("USDJPY")}}><p>USDJPY</p></li>
-              <li onClick={() => {setBotPick("GBPUSD")}}><p>GBPUSD</p></li>
-              <li onClick={() => {setBotPick("USDCHF")}}><p>USDCHF</p></li>
-              <li onClick={() => {setBotPick("USDCAD")}}><p>USDCAD</p></li>
-              <li onClick={() => {setBotPick("AUDUSD")}}><p>AUDUSD</p></li>
-            </ul>
+    isLoading 
+      ? <div className="loading-container">
+            <div className="loading"></div>
           </div>
-          <div className="flex justify-between ml-2">
-            {/* Search input */}
-            <div className="search-box rounded-lg">
-              <input
-                type="text"
-                placeholder="Search bots by name..."
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input text-black text-sm w-full pl-3 pr-4 py-2 rounded-lg border border-gray-300"
-              />
+      :
+      <div className="page-container flex flex-col mt-7 ml-auto">
+        <h1 className="title text-2xl text-white ml-5">Bot Trading Strategies {username}</h1>
+        <div className={`flex justify-between mx-5`}>
+          <div className="flex justify-end flex-1">
+            <div className="dropdown w-24">
+              <button
+                className="dropdown-btn text-sm"
+                aria-label="menu button"
+                aria-haspopup="menu"
+                aria-expanded={isDropdownOpen}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <span>{botPick}</span>
+                <span className={`arrow ${isDropdownOpen ? "arrow-rotate" : ""}`}></span>
+              </button>
+              <ul className={`dropdown-content text-sm ${isDropdownOpen ? "menu-open" : ""}`} role="menu">
+                <li onClick={() => {setBotPick("All")}}><p>All</p></li>
+                <li onClick={() => {setBotPick("EURUSD")}}><p>EURUSD</p></li>
+                <li onClick={() => {setBotPick("USDJPY")}}><p>USDJPY</p></li>
+                <li onClick={() => {setBotPick("GBPUSD")}}><p>GBPUSD</p></li>
+                <li onClick={() => {setBotPick("USDCHF")}}><p>USDCHF</p></li>
+                <li onClick={() => {setBotPick("USDCAD")}}><p>USDCAD</p></li>
+                <li onClick={() => {setBotPick("AUDUSD")}}><p>AUDUSD</p></li>
+              </ul>
+            </div>
+            <div className="flex justify-between ml-2">
+              {/* Search input */}
+              <div className="search-box rounded-lg">
+                <input
+                  type="text"
+                  placeholder="Search bots by name..."
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input text-white text-sm w-full pl-3 pr-4 py-2 rounded-lg border border-[#2a2c2d] bg-[#2a2c2d]"
+                />
+              </div>
             </div>
           </div>
         </div>
+        {bots.map((bot) => (
+          <div key={bot.model_name} className={`bot-info bg-[#1E2226] text-white p-4 my-2 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-xs ${animationVisible ? animation : ''}`}>
+            <div className="mr-2">
+              <h2 className={`text-sm font-bold ${bot.side === 'buy'? 'text-[#11C47E]' : 'text-[#F6465D]'}`}>{bot.model_name}</h2>
+              <h2 className="text-sm text-base whitespace-nowrap">{bot.symbol} {bot.timeframe}</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 lg:gap-12 text-zinc-400">
+              <div className="flex flex-col">
+                <div>
+                  <p>Version</p>
+                  <div className="text-white">{bot.version}</div>
+                </div>
+                <div>
+                  <p className="mt-3">Last update</p>
+                  <div className="text-white">{formatTimestamp(bot.timestamp)}</div>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <div>
+                  <p>AUC score test</p>
+                  <div className="text-white">{bot.auc_score_test}</div>
+                </div>
+                <div>
+                  <p className="mt-3">AUC score train</p>
+                  <div className="text-white">{bot.auc_score_train}</div>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <div>
+                  <p>F1 score test</p>
+                  <div className="text-white">{bot.f1_score_test}</div>
+                </div>
+                <div>
+                  <p className="mt-3">F1 score train</p>
+                  <div className="text-white">{bot.f1_score_train}</div>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <div>
+                  <p>Accuracy test</p>
+                  <div className="text-white">{bot.f1_score_test}</div>
+                </div>
+                <div>
+                  <p className="mt-3">Accuracy train</p>
+                  <div className="text-white">{bot.f1_score_train}</div>
+                </div>
+              </div>
+              <div className="flex flex-col mr-2">
+                <div>
+                  <p>Precision test</p>
+                  <div className="text-white">{bot.precision_test}</div>
+                </div>
+                <div>
+                  <p className="mt-3">Precision train</p>
+                  <div className="text-white">{bot.precision_train}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      {bots.map((bot) => (
-        <div key={bot.model_name} className={`bot-info bg-[#1E2226] text-white p-4 my-2 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-xs ${animationVisible ? animation : ''}`}>
-          <div className="mr-2">
-            <h2 className={`text-sm font-bold ${bot.side === 'buy'? 'text-[#11C47E]' : 'text-[#F6465D]'}`}>{bot.model_name}</h2>
-            <h2 className="text-sm text-base whitespace-nowrap">{bot.symbol} {bot.timeframe}</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 lg:gap-12 text-zinc-400">
-            <div className="flex flex-col">
-              <div>
-                <p>Version</p>
-                <div className="text-white">{bot.version}</div>
-              </div>
-              <div>
-                <p className="mt-3">Last update</p>
-                <div className="text-white">{formatTimestamp(bot.timestamp)}</div>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div>
-                <p>AUC score test</p>
-                <div className="text-white">{bot.auc_score_test}</div>
-              </div>
-              <div>
-                <p className="mt-3">AUC score train</p>
-                <div className="text-white">{bot.auc_score_train}</div>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div>
-                <p>F1 score test</p>
-                <div className="text-white">{bot.f1_score_test}</div>
-              </div>
-              <div>
-                <p className="mt-3">F1 score train</p>
-                <div className="text-white">{bot.f1_score_train}</div>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div>
-                <p>Accuracy test</p>
-                <div className="text-white">{bot.f1_score_test}</div>
-              </div>
-              <div>
-                <p className="mt-3">Accuracy train</p>
-                <div className="text-white">{bot.f1_score_train}</div>
-              </div>
-            </div>
-            <div className="flex flex-col mr-2">
-              <div>
-                <p>Precision test</p>
-                <div className="text-white">{bot.precision_test}</div>
-              </div>
-              <div>
-                <p className="mt-3">Precision train</p>
-                <div className="text-white">{bot.precision_train}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
   );
 };
 

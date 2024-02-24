@@ -1,6 +1,8 @@
 import React ,{ useState, useEffect} from "react";
 import { FaCoins } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
+import { CgAddR } from "react-icons/cg";
+import { FaTrashCan } from "react-icons/fa6";
 
 import "../pages/css/switch.css"
 
@@ -28,7 +30,10 @@ const Wallets = () => {
   const [animation, setAnimation] = useState('slid-up')
 
   const [showEdit, setShowEdit] = useState(false);
+  const [showAddBot, setShowAddBot] = useState(false)
+  const [showDeleteBot, setShowDeleteBot] = useState(false)
   const [countWallet, setcountWallet] = useState([])
+  const [countModelName, setcountModelName] = useState('')
 
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userId, setUserId] = useState('')
@@ -75,6 +80,7 @@ const Wallets = () => {
         setIsDataFetched(true);
         setWallet(updateAccounts);
       } catch (error) {
+        setIsLoading(false)
         console.error("Failed to fetch account MT:", error);
       }
     };
@@ -95,6 +101,19 @@ const Wallets = () => {
     const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
     setShowEdit(true);
     setcountWallet(selectedWallet);
+  };
+
+  const handleAddBotClick = (username_mt5) => {
+    const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
+    setShowAddBot(true)
+    setcountWallet(selectedWallet);
+  };
+
+  const handleDeleteBotClick = (username_mt5, model_name) => {
+    const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
+    setShowDeleteBot(true)
+    setcountWallet(selectedWallet);
+    setcountModelName(model_name)
   };
 
   const handleToggleBotStatus = async (user_id, usernameMt5, modelName, currentStatus) => {
@@ -129,12 +148,40 @@ const Wallets = () => {
 
   const toggleModal = () => setIsModalOpen(!isModalOpen)
 
-  return (
-    isLoading
-      ? <div className="loading-container">
-            <div className="loading"></div>
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading"></div>
+      </div>
+    );
+  }
+  
+  // If not loading and wallets array is empty, show the empty message
+  if (!isLoading && wallets.length === 0) {
+    return (
+      <div className="page-container flex flex-col mt-7 ml-auto">
+        <h1 className="title text-2xl text-white ml-5">
+          Accounts
+        </h1>
+        <div className="flex justify-between mx-5">
+          <div className="flex justify-end flex-1">
+            <button 
+              className="rounded-lg bg-blue-600 text-white whitespace-nowrap py-1 px-2 hover:bg-blue-500 active:bg-blue-700"
+              onClick={toggleModal}>
+              + add wallet
+            </button>
+            <AddWalletModal isOpen={isModalOpen} onClose={toggleModal} setWallet={setWallet} user_id={userId}
+            />
           </div>
-      :
+        </div>
+        <div className="text-center text-white mt-10">
+          Your account MT is empty.
+        </div>
+      </div>
+    );
+  }
+
+  return (
       <div className="page-container flex flex-col mt-7 ml-auto">
         <h1 className="title text-2xl text-white ml-5">
           Accounts
@@ -196,9 +243,17 @@ const Wallets = () => {
                     <FaEdit/>
                   </button>
                 </div>
+                <div className="flex xl:justify-end">
+                  <button 
+                    className="text-blue-500 border border-blue-500 rounded-lg hover:bg-blue-800 px-5 py-1 active:bg-blue-900 flex items-center" 
+                    onClick={() => handleAddBotClick(wallet.username_mt5)}
+                    >
+                    add bot <CgAddR className="inline-block ml-1"/>
+                  </button>
+                </div>
               </div>
             </div>
-            {wallet.bots.map((bot, botindex) => (
+            {wallet.bots?.map((bot, botindex) => (
               <div key={bot.model_name || botindex} className={`bot-info bg-[#1E2228] text-white p-4 my-2 rounded-lg flex flex-col md:flex-row justify-between mx-5 text-sm ${animation}`}>
                 <div className="md-4 mr-5">
                   <h2 className="text-sm font-bold text-blue-500">{bot.model_name}</h2>
@@ -221,10 +276,18 @@ const Wallets = () => {
                     <div className={bot.status === 'active' ? 'text-green-500' : 'text-red-500'}>{bot.status}</div>
                   </div>
                 </div>
-                <ToggleSwitch
-                  isOn={bot.status === 'active'}
-                  onToggle={() => handleToggleBotStatus(wallet.user_id, wallet.username_mt5, bot.model_name, bot.status)}
-                />
+                <div className="flex flex-col">
+                  <ToggleSwitch
+                    isOn={bot.status === 'active'}
+                    onToggle={() => handleToggleBotStatus(wallet.user_id, wallet.username_mt5, bot.model_name, bot.status)}
+                  />
+                  <button
+                    className="text-red-500 flex justify-end"
+                    onClick={() => handleDeleteBotClick(wallet.username_mt5, bot.model_name)}
+                    >
+                    <FaTrashCan/>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -239,51 +302,58 @@ const Wallets = () => {
             wallets={wallets}
           />
         }
+        {showAddBot && 
+          <AddBotsModal
+            isOpen={showAddBot}
+            onClose={() => setShowAddBot(false)}
+            wallet={countWallet}
+            setWallet={setWallet}
+            user_id={userId}
+            wallets={wallets}
+          />
+        }
+        {showDeleteBot &&
+          <DeleteBotModal
+            isOpen={showDeleteBot}
+            onClose={() => setShowDeleteBot(false)}
+            user_id={userId}
+            model_name={countModelName}
+            username_mt5={countWallet.username_mt5}
+            wallets={wallets}
+            setWallet={setWallet}  
+          />
+        }
       </div>
   );
 };
 
-const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
-  const [walletName, setWalletName] = useState('')
-  const [usernameMT, setUsernameMT] = useState('')
-  const [passwordMT, setPasswordMT] = useState('')
-  const [serverMT, setserverMT] = useState('')
+const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wallets, setWallet}) => {
+  const [animation, setAnimation] = useState('modal-enter');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const [animation, setAnimation] = useState('')
-
-  const handleSubmit = async (e) =>{
-    e.preventDefault();
-
-    const Account = await checkAccountMT(usernameMT, passwordMT, serverMT);
-    if (Account) {
-      const newWallet = {
-        id : walletName,
-        username_mt5 : usernameMT,
-        password_mt5 : passwordMT,
-        server : serverMT,
-        leverage : Account.account_info.leverage,
-        company : Account.account_info.company,
-        balance : Account.account_info.balance,
-      }
-
-      const response = await axios.post(`http://localhost:5000/api/send-account-mt`, {
-        name_account: walletName,
-        username_mt5: usernameMT,
-        password_mt5: passwordMT,
-        server: serverMT,
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const temp = await axios.post('http://localhost:5000/api/delete-bot-account-mt', {
         user_id: user_id,
-        bots: []
+        username_mt5: username_mt5,
+        model_name: model_name,
       });
-
-      setWallet((prevBots) => [...prevBots, newWallet]);
-  
-      setWalletName('')
-      setUsernameMT('')
-      setPasswordMT('')
-      setserverMT('')
+      
+      const updatedWallets = wallets.map((wallet) => {
+        if (wallet.username_mt5 === username_mt5) {
+          return {
+            ...wallet,
+            bots: wallet.bots.filter((bot) => bot.model_name !== model_name),
+          };
+        }
+        return wallet;
+      });
+      setWallet(updatedWallets);
       onClose()
-    } else {
-      console.log("can't add your account mt");
+    } catch (error) {
+      console.error("Failed to delete bot:", error);
+      setErrorMessage(error.response?.data?.message || "An error occurred while deleting the bot.");
     }
   }
 
@@ -300,6 +370,138 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
       }, 10); // start the exit animation
     }
   }, [isOpen]);
+  if (!isOpen) return null
+  return (
+    <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/6 xl:w-1/4 max-w-4xl ${animation}`} 
+        style={{
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+        <h2 className="text-lg text-white text-center mb-10">
+          Are you sure you want to delete bot <span className="text-blue-500">{model_name}</span> ?
+        </h2>
+        {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+        <div className="flex justify-between flex-col md:flex-row gap-2">
+          <button 
+            className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
+            onClick={onClose}>
+              Close
+          </button>
+          <button 
+            type = "submit" 
+            onClick={handleSubmit}
+            className="bg-blue-600 rounded-lg p-2 px-5 text-white hover:bg-blue-500 active:bg-blue-700" >
+              Ok
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
+  const [walletName, setWalletName] = useState('')
+  const [usernameMT, setUsernameMT] = useState('')
+  const [passwordMT, setPasswordMT] = useState('')
+  const [serverMT, setserverMT] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [animation, setAnimation] = useState('modal-enter')
+
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e) =>{
+    e.preventDefault();
+    setIsLoading(true)
+
+    const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
+      username: usernameMT,
+      password: passwordMT,
+      server: serverMT,
+    });
+
+    if (accountDetails.data.success) {
+      const newWallet = {
+        id : walletName,
+        username_mt5 : usernameMT,
+        password_mt5 : passwordMT,
+        server : serverMT,
+        leverage : accountDetails.data.account_info.leverage,
+        company : accountDetails.data.account_info.company,
+        balance : accountDetails.data.account_info.balance,
+      }
+
+      try {
+        
+        const response = await axios.post(`http://localhost:5000/api/send-account-mt`, {
+          name_account: walletName,
+          username_mt5: usernameMT,
+          password_mt5: passwordMT,
+          server: serverMT,
+          user_id: user_id,
+          bots: []
+        });
+
+        setWallet((prevBots) => [...prevBots, newWallet]);
+        
+        setIsLoading(false)
+        setWalletName('')
+        setUsernameMT('')
+        setPasswordMT('')
+        setserverMT('')
+        onClose()
+      } catch (error) {
+        setIsLoading(false)
+        const errorMsg = error.response?.data?.message || "An unexpected error occurred.";
+        setErrorMessage(errorMsg);
+      }
+    } else {
+      setIsLoading(false)
+      console.log("can't add your account mt");
+      setErrorMessage(accountDetails.data.message);
+    }
+  }
+
+  const handleClose = () => {
+    setWalletName('')
+    setUsernameMT('')
+    setPasswordMT('')
+    setserverMT('')
+    setAnimation('')
+    onClose()
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      setAnimation("modal-enter");
+      setTimeout(() => {
+        setAnimation("modal-enter-active");
+      }, 10); // start the enter animation shortly after the component is rendered
+    } else {
+      setAnimation("modal-exit");
+      setTimeout(() => {
+        setAnimation("modal-exit-active");
+      }, 10); // start the exit animation
+    }
+  }, [isOpen]);
+
+  if (isLoading) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 text-white ${animation}`}
+        style={{
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+          <div className="loading-container h-20">
+            <div className="loading"></div>
+          </div>
+          <p className="flex justify-center">Just a moment please...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!isOpen) return null
   return (
@@ -309,7 +511,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
         maxHeight: '90vh',
         overflowY: 'auto'
       }}>
-        <h2 className="text-xl font-bold text-white">Add Wallet</h2>
+        <h1 className="text-xl text-center mt-2">Add account mt5</h1>
         <div className="flex text-white flex-col">
           <form
             className="px-5 pt-4 pb-2 rounded-lg flex-1"
@@ -320,12 +522,12 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
                 htmlFor="walletname"
                 className="block mb-2 "
                 >
-                Wallet name
+                Account name
               </label>
               <input 
                 type="text" 
                 id="walletname"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="wallet name"
                 required
                 value={walletName}
@@ -339,7 +541,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="text" 
                 id="usernameMT"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="username mt5"
                 required
                 value={usernameMT}
@@ -353,7 +555,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="password" 
                 id="PasswordMT"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="password mt5"
                 required
                 value={passwordMT}
@@ -367,17 +569,18 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
               <input 
                 type="text" 
                 id="server"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="server mt5"
                 required
                 value={serverMT}
                 onChange={(e) => setserverMT(e.target.value)}
               />
             </div>
+            {errorMessage && <div className="text-red-500 text-sm mt-2 text-center">{errorMessage}</div>}
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
               <button 
                 className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
-                onClick={onClose}>
+                onClick={handleClose}>
                   Close
               </button>
               <button 
@@ -399,10 +602,12 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   const [passwordMT, setPasswordMT] = useState('');
   const [serverMT, setServerMT] = useState(wallet.server);
 
-  const [animation, setAnimation] = useState('');
+  const [animation, setAnimation] = useState('modal-enter');
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("")
+
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   useEffect(() => {
     if (wallet) {
@@ -461,6 +666,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   };
 
   const handleDelete = async () => {
+    setShowConfirmDelete(false)
     try {
       setLoading(true);
       const response = await axios.post('http://localhost:5000/api/delete-account-mt', {
@@ -494,10 +700,54 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
     }
   }, [isOpen]);
 
-  // Add form inputs for usernameMT, passwordMT, and serverMT ====
-  // Use the handleSubmit method on form submission
-
   if (!isOpen) return null;
+
+  if (showConfirmDelete) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/6 xl:w-1/4 max-w-4xl ${animation}`} 
+          style={{
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}>
+          <h2 className="text-lg text-white text-center mb-10">
+            Are you sure you want to delete account <span className="text-blue-500">{wallet.name_account}</span> ?
+          </h2>
+          {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+          <div className="flex justify-between flex-col md:flex-row gap-2">
+            <button 
+              className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
+              onClick={() => setShowConfirmDelete(false)}>
+                Close
+            </button>
+            <button 
+              type = "submit" 
+              onClick={handleDelete}
+              className="bg-blue-600 rounded-lg p-2 px-7 text-white hover:bg-blue-500 active:bg-blue-700" >
+                Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
+      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 text-white ${animation}`}
+      style={{
+        maxHeight: '90vh',
+        overflowY: 'auto'
+      }}>
+          <div className="loading-container h-20">
+              <div className="loading"></div>
+          </div>
+          <p className="flex justify-center">Just a moment please...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
@@ -515,7 +765,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
           </>
         ) : (
           <>
-            <h1>Edit wallet {wallet.username_mt5}</h1>
+            <h1 className="text-xl text-center mt-2">Edit Account MT <span className="text-blue-500">{wallet.name_account}</span></h1>
             <form 
               className="px-5 pt-4 pb-2 rounded-lg text-sm text-zinc-400"
               onSubmit={handleSubmit}
@@ -530,7 +780,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="walletname"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.username_mt5}
                     value={name_account}
                     onChange={(e) => setNameAccount(e.target.value)}
@@ -543,7 +793,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="usernameMT"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.username_mt5}
                     value={usernameMT}
                     onChange={(e) => setUsernameMT(e.target.value)}
@@ -569,19 +819,19 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                   <input 
                     type="text" 
                     id="server"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                     placeholder={wallet.server}
                     value={serverMT}
                     onChange={(e) => setServerMT(e.target.value)}
                   />
                 </div>
-                {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+                {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
                 <div className="flex-col md:flex-row gap-2">
-                <button type = "button" onClick={handleDelete} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
+                <button type = "button" onClick={() => setShowConfirmDelete(true)} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
                 </div>
                 <div className="flex justify-between mt-2 flex-col xl:flex-row gap-2">
                   <button onClick={onClose} className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 active:bg-gray-800">Cancel</button>
-                  <button type="submit" className="bg-red-500 text-white px-8 py-2 rounded-lg hover:bg-red-400 active:bg-red-600">OK</button>
+                  <button type="submit" className="bg-blue-500 text-white px-8 py-2 rounded-lg hover:bg-red-400 active:bg-red-600">OK</button>
                 </div>
             </form>
           </>
@@ -591,35 +841,77 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
   )
 };
 
-const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => {
+const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => {
   const [model_name, setModelName] = useState('');
   const [timeframe, setTimeframe] = useState('');
-  const [lotsize, setLotSize] = useState('')
-  const [status, setStatus] = useState(true)
+  const [lotsize, setLotSize] = useState('');
+  const [status, setStatus] = useState('inactive')
   const [tpSlValues, setTpSlValues] = useState({tp:'', sl:''})
 
-  const handleSubmit = (e) => {
+  const [animation, setAnimation] = useState("modal-enter");
+
+  const [errorMessage, setErrorMessage] = useState("")
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newBot = {
-      model_name : model_name,
+      model_name: model_name,
       timeframe: timeframe,
-      lotsize : lotsize,
+      lotsize: lotsize,
       status: status,
     };
+  
+    try {
+      const responseInsertBot = await axios.post('http://localhost:5000/api/insert-bot-account-mt', {
+        user_id: user_id,
+        username_mt5: wallet.username_mt5, // Make sure this matches the expected field name in your server-side code
+        bot: newBot
+      });
+  
+      // Success case
+      setErrorMessage("");
+      console.log("Bot added successfully:", responseInsertBot.data.message);
+  
+      const updatedWallets = wallets.map((walletItem) => {
+        if (walletItem.username_mt5 === wallet.username_mt5) {
+          return {
+            ...walletItem,
+            bots: [...walletItem.bots, newBot] 
+          };
+        }
+        return walletItem;
+      });
+      setWallet(updatedWallets);
+      
+      // Reset form fields and close modal
+      setModelName('');
+      setTimeframe('');
+      setLotSize('');
+      onClose();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Axios error
+        const status = error.response ? error.response.status : null;
+        const message = error.response ? error.response.data.message : error.message;
+        console.error(`Error adding bot - Status: ${status}, Message: ${message}`);
+        setErrorMessage(`${message}`);
+      } else {
+        // Non-Axios error
+        console.error("An unexpected error occurred:", error);
+        setErrorMessage("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
 
-    
-
-    // Update the bots state with the new bot
-    // setWallet((wallets) => [...wallets, newBot]);
-    
-    // Reset form fields and close modal
+  const handleClose = () => {
     setModelName('');
     setTimeframe('');
     setLotSize('');
+    setAnimation("")
     onClose();
-  };
+  }
 
-  const [animation, setAnimation] = useState("");
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -667,7 +959,7 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
           maxHeight: '90vh',
           overflowY: 'auto'
         }}>
-        <h2 className="text-xl font-bold text-white">Add Bot Strategy</h2>
+        <h1 className="text-xl text-center mt-2">Add bot Strategy</h1>
         <div className="flex text-white flex-col">
           <form 
             className="px-5 pt-4 pb-2 rounded-lg"
@@ -676,35 +968,20 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
             <div>
               <h1 className="text-lg">General setting</h1>
             </div>
-            <div className="mb-4 mt-2">
-              <label 
-                htmlFor="botname"
-                className="block mb-2 text-sm font-medium text-zinc-400">Bot name
-              </label>
-              <input 
-                type="text"
-                id="botname"
-                className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5" 
-                placeholder="bot name"
-                required
-                value={bot_name}
-                onChange={(e) => setBotName(e.target.value)}
-              />
-            </div>
             {/* Timeframe Select Dropdown */}
             <div className="mb-4">
               <label 
-                htmlFor="Currencypair"
-                className="block mb-2 text-sm font-medium text-zinc-400">Currency Pair
+                htmlFor="model_name"
+                className="block mb-2 text-sm font-medium text-zinc-400">Symbol
                 </label>
                 <select 
-                  id="Currencypair"
-                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  id="model_name"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                   required
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
+                  value={model_name}
+                  onChange={(e) => setModelName(e.target.value)}
                 >
-                  <option value="" className="text-blue-200" disabled selected>Select currency pair</option>
+                  <option value="" className="text-blue-200" disabled selected>Select Symbol</option>
                   <option value="EURUSD">EURUSD</option>
                   <option value="USDJPY">USDJPY</option>
                   <option value="GBPUSD">GBPUSD</option>
@@ -721,7 +998,7 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
                 </label>
                 <select 
                   id="timeframe"
-                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5"
+                  className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                   required
                   value={timeframe}
                   onChange ={(e) => setTimeframe(e.target.value)}
@@ -745,9 +1022,9 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
                   className="block mb-2 text-sm font-medium text-zinc-400">Lot size
                   </label>
                   <input 
-                    type="text"
+                    type="number"
                     id="lot size"
-                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-2.5" 
+                    className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5" 
                     placeholder="lot size"
                     value={lotsize}
                     onChange={(e) => setLotSize(e.target.value)}
@@ -758,7 +1035,7 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
               <div className="flex-1">
                 <label htmlFor="tp" className="block mb-2 text-sm font-medium text-zinc-400">Take Profit (TP)</label>
                 <input
-                  type="text"
+                  type="number"
                   id="tp"
                   placeholder="0.00000"
                   className="bg-[#1E2226] border border-gray-600 text-zinc-400 text-sm rounded-lg w-full p-2.5 focus:outline-none"
@@ -769,7 +1046,7 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
               <div className="flex-1">
                 <label htmlFor="sl" className="block mb-2 text-sm font-medium text-zinc-400">Stop Loss (SL)</label>
                 <input
-                  type="text"
+                  type="number"
                   id="sl"
                   placeholder="0.00000"
                   className="bg-[#1E2226] border border-gray-600 text-zinc-400 text-sm rounded-lg w-full p-2.5 focus:outline-none"
@@ -778,8 +1055,11 @@ const BotSettingModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}
                 />
               </div>
             </div>
+            {errorMessage && <div className="text-red-500 text-sm mt-2 text-center">{errorMessage}</div>}
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
-              <button onClick={()=>{onClose();setAnimation("")}} className="bg-red-500 hover:bg-red-400 active:bg-red-600 rounded-lg p-2 px-5">
+              <button
+                type="button" 
+                onClick={handleClose} className="bg-red-500 hover:bg-red-400 active:bg-red-600 rounded-lg p-2 px-5">
                 close
               </button>
               <button 
