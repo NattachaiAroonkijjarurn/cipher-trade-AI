@@ -24,10 +24,10 @@ import { getUserData } from '../controllers/FetchUserData.js'
 import { updateProfile } from '../controllers/UpdateProfile.js'
 
 // Models
-import { getModel } from '../Models/model.js'
+import { getModel } from '../controllers/GetModel.js'
 
 //AccountMT
-import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../mt/accountMt.js'
+import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../controllers/AccountMt.js'
 
 const router = express.Router()
 
