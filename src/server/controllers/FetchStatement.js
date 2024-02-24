@@ -37,4 +37,4 @@ const fetchPosition = async(req, res) => {
     }
 }
 
-export {fetchOrder, fetchPosition}
+export { fetchOrder, fetchPosition }

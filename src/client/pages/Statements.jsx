@@ -330,7 +330,7 @@ const Statements = () => {
         {/* Table */}
         {isLoading 
           ?
-          <div className="loading-container h-[50vh]">
+          <div className="loading-container h-[50vh] w-11/12">
             <div className="loading"></div>
           </div>
           :

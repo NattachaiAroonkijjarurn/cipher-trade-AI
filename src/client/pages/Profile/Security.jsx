@@ -47,7 +47,7 @@ export default function Security({data}) {
                                 anchorSelect=".user-email" 
                                 place="top"
                                 variant="info" 
-                                content="nattachai.aroonkij@gmail.com"
+                                content={userData.email}
                             />
                             <button className="change-button em" onClick={() => setIsEmailModalOpen(!isEmailModalOpen)}>Change Email</button>
                             <Modal 
@@ -68,13 +68,13 @@ export default function Security({data}) {
                     <div className="phone flex flex-col gap-2">
                         <h3 className="text-slate-500">Phone Number :</h3>
                         <div className="user-phone-edit grid grid-cols-2 items-center">
-                            <h3 className="user-phone overflow-hidden text-ellipsis whitespace-nowrap">{userData.phone}</h3>
+                            <h3 className="user-phone overflow-hidden text-ellipsis whitespace-nowrap">{userData.phoneNumber}</h3>
                             <Tooltip
                                 id="phone-tooltip" 
                                 anchorSelect=".user-phone" 
                                 place="top"
                                 variant="info" 
-                                content="095-XXX-XXXX"
+                                content={userData.phoneNumber}
                                 className={`${isTabletMid ? "" : "hidden"}`}
                             />
                             <button className="change-button pn" onClick={() => setIsPhoneModalOpen(!isPhoneModalOpen)}>Change Phone Number</button>

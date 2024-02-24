@@ -35,6 +35,9 @@ const Overall = () => {
     let isTabletMidChart  = useMediaQuery({ query: "(max-width: 1280px)" });
     let isTabletMidWR = useMediaQuery({ query: "(max-width: 1160px)" });
 
+    // Loading
+    const [isLoading, setIsLoading] = useState(true)
+
 // =========================================================== Account Filter + DropDown ===========================================================
     // useState to set state of DropDown and Account Choosed
     const [userId, setUserId] = useState('')
@@ -70,6 +73,12 @@ const Overall = () => {
     const handleAccountSelection = (selectedAccount) => {
       setAccountPick(selectedAccount);
     };
+
+    useEffect(() => {
+      if (isAccountFetched) {
+        setIsLoading(false)
+      }
+    }, [isAccountFetched], accounts)
 
 // =========================================================== Date Filter ===========================================================
     // useState to set Start and End Date
@@ -297,8 +306,10 @@ const Overall = () => {
 
     // Use the createDoughnutChart function in useEffect hooks
     useEffect(() => {
-      const overallDoughnutChart = createDoughnutChart('b/s', overallData, 'Side');
-      return () => overallDoughnutChart.destroy();
+      if (!isLoading) {
+        const overallDoughnutChart = createDoughnutChart('b/s', overallData, 'Side');
+        return () => overallDoughnutChart.destroy();
+      }
     }, [overallData]);
 
 // ==================================================== Buy Doughnut Chart ====================================================
@@ -330,8 +341,10 @@ const Overall = () => {
 
     // Use the createDoughnutChart function in useEffect hooks
     useEffect(() => {
-      const buyDoughnutChart = createDoughnutChart('buy', buyData, 'Buy');
-      return () => buyDoughnutChart.destroy();
+      if (!isLoading) {
+        const buyDoughnutChart = createDoughnutChart('buy', buyData, 'Buy');
+        return () => buyDoughnutChart.destroy();
+      }
     }, [buyData]);
 
 // ==================================================== Sell Doughnut Chart ====================================================
@@ -362,8 +375,10 @@ const Overall = () => {
 
     // Use the createDoughnutChart function in useEffect hooks
     useEffect(() => {
-      const sellDoughnutChart = createDoughnutChart('sell', sellData, 'Sell');
-      return () => sellDoughnutChart.destroy();
+      if (!isLoading) {
+        const sellDoughnutChart = createDoughnutChart('sell', sellData, 'Sell');
+        return () => sellDoughnutChart.destroy();
+      }
     }, [sellData]);
 
 //  ========================================================== Line Chart (Profit Growth) ==========================================================
@@ -374,44 +389,54 @@ const Overall = () => {
     useEffect(() => {
       // Example calculation, replace this with your actual logic
       const calculateLineChartData = () => {
-        const dailyProfits = {};
-    
+        const dailyBalance = {};
+
+        // Iterate through each entry in chartData and populate dailyBalance
         chartData.forEach(entry => {
-          const dateKey = moment(entry.entryTime).format("YYYY-MM-DD");
-    
-          if (dailyProfits[dateKey] === undefined) {
-            dailyProfits[dateKey] = entry.profit;
-          } else {
-            dailyProfits[dateKey] += entry.profit;
-          }
+          const dateKey = moment(entry.entrytime).format("YYYY-MM-DD");
+
+          // Update dailyBalance with the last balance of each day
+          dailyBalance[dateKey] = entry.balance;
         });
-    
-        const pgData = Object.keys(dailyProfits).map(date => ({
-          x: date,
-          y: dailyProfits[date],
+
+        // Iterate through each date in the date range to fill in missing dates
+        const currentDate = moment(dateRange[0].startDate);
+        const endDate = moment(dateRange[0].endDate);
+        
+        while (currentDate <= endDate) {
+          const dateKey = currentDate.format("YYYY-MM-DD");
+
+          // If the date is missing, use the previous day's balance
+          if (!(dateKey in dailyBalance) && moment(dateKey).isAfter(dateRange[0].startDate)) {
+            const previousDate = currentDate.clone().subtract(1, 'day').format("YYYY-MM-DD");
+            dailyBalance[dateKey] = dailyBalance[previousDate] || 0;
+          }
+
+          currentDate.add(1, 'days');
+        }
+
+        // Convert dailyBalance into an array of objects for the Line Chart
+        const pgData = Object.keys(dailyBalance).map(date => ({
+          x: new Date(date),
+          y: dailyBalance[date],
         }));
-    
-        console.log
+
+        pgData.sort((a, b) => a.x - b.x);
+
         return pgData;
       }
 
       setProfitGrowthData(calculateLineChartData());
-    }, [chartData]);
+    }, [chartData, dateRange]);
 
     // Create a reusable function to create doughnut charts
     const createLineChart = (canvasId, data, title) => {
 
-      let profit = profitGrowthData.map(yData => yData.y)
-      let date = [];
-  
-      // Generate dates from startDate to endDate
-      const currentDate = moment(dateRange[0].startDate);
-      const endDate = moment(dateRange[0].endDate);
+      let dailyBalance = profitGrowthData.map(yData => yData.y)
+      let date = profitGrowthData.map(xData => xData.x)
 
-      while (currentDate <= endDate) {
-        date.push(currentDate.format("YYYY-MM-DD"));
-        currentDate.add(1, 'days');
-      }
+      console.log(dailyBalance)
+      console.log(date)
     
       return new Chart(
         document.getElementById(canvasId).getContext('2d'),
@@ -421,7 +446,7 @@ const Overall = () => {
             labels: date,
             datasets: [{
               label: 'Profit Growth',
-              data: profit,
+              data: dailyBalance,
               borderColor: '#2C7AFE', // Line color
               backgroundColor: '#2C7AFE', // Fill color
             }],
@@ -482,8 +507,10 @@ const Overall = () => {
 
     // Use the createLineChart function in useEffect hooks
     useEffect(() => {
-      const PGLineChart = createLineChart('pg', profitGrowthData, 'Profit Growth');
-      return () => PGLineChart.destroy();
+      if (!isLoading) {
+        const PGLineChart = createLineChart('pg', profitGrowthData, 'Profit Growth');
+        return () => PGLineChart.destroy();
+      }
     }, [profitGrowthData]);
 
 //  ========================================================== Bar Chart (PNL) ==========================================================
@@ -502,8 +529,8 @@ const Overall = () => {
       }
 
       // Calculate daily sum of profit
-      const dailySumProfit = date.map(currentDate => {
-        const entriesOnDate = data.filter(entry => moment(entry.entryTime).format("YYYY-MM-DD") === currentDate);
+      const dailySumProfit = date.map(presentDate => {
+        const entriesOnDate = data.filter(entry => moment(entry.entrytime).format("YYYY-MM-DD") === presentDate);
         const sumProfit = entriesOnDate.reduce((sum, entry) => sum + entry.profit, 0);
         return sumProfit;
       });
@@ -574,108 +601,116 @@ const Overall = () => {
 
     // Use the createPNLChart function in useEffect hooks
     useEffect(() => {
-      const pnlChart = createPNLChart('pnl', chartData, 'PNL');
-      return () => pnlChart.destroy();
+      if (!isLoading) {
+        const pnlChart = createPNLChart('pnl', chartData, 'PNL');
+        return () => pnlChart.destroy();
+      }   
     }, [chartData]);
 
 // =============================================================================================================================
 
   return (
-    <div className="page-container flex flex-col mt-7 w-11/12">
-      <h1 className="titlle text-2xl border-b-2 border-slate-500 w-full">Overall</h1>
-
-      {/* Filter */}
-      <div className="filter flex flex-auto flex-wrap mt-3 mr-auto gap-5 items-center justify-start">
-
-        {/* Date Filter */}
-        <div className="date-filter">
-          <button className="butttonShowCalender flex items-center gap-5 bg-[#2a2c2d] p-3 rounded-lg" onClick={() => {setCalendarVisible(!isCalendarVisible)}}>
-            <span>{formattedStartDate} - {formattedEndDate}</span>
-            <BsCalendar2DateFill/>
-          </button>
-          <ul className="ulShowDate absolute z-50">
-            {isCalendarVisible 
-            ? <li className="liCalender block">
-                <DateRangePicker
-                  className="text-[#2C7AFE]"
-                  onChange={item => setDateRange([item.selection])}
-                  showSelectionPreview={true}
-                  moveRangeOnFirstSelection={false}
-                  months={2}
-                  ranges={dateRange}
-                  direction="horizontal"
-                />
-              </li> 
-            : <li className="liCalender hidden w-11/12">
-                <DateRangePicker
-                  className="text-[#2C7AFE]"
-                  onChange={item => setDateRange([item.selection])}
-                  showSelectionPreview={true}
-                  moveRangeOnFirstSelection={false}
-                  months={2}
-                  ranges={dateRange}
-                  direction="horizontal"
-                />
-              </li>
-            }
-          </ul>
+    isLoading 
+      ?
+        <div className="loading-container h-[100vh] w-11/12">
+          <div className="loading"></div>
         </div>
+      :
+        <div className="page-container flex flex-col mt-7 w-11/12">
+          <h1 className="titlle text-2xl border-b-2 border-slate-500 w-full">Overall</h1>
 
-        {/* Account Filter */}
-        <div className="account-filter whitespace-pre flex flex-auto items-center w-[16em] z-60 relative">
-          <p className="mr-2">Account :</p>
-          <DropDown
-            accountPick = {accountPick}
-            onAccountSelect={handleAccountSelection}
-          />
-        </div>
-        {/* Reset Button */}
-        <div className="resetButton bg-[#3a3c3d] rounded-lg flex-shrink-0">
-          <button className="py-3 px-5" onClick={() => {setAccountPick("All")}}>Reset</button>
-        </div>
-      </div>
+          {/* Filter */}
+          <div className="filter flex flex-auto flex-wrap mt-3 mr-auto gap-5 items-center justify-start">
 
-      {/* Static Contanier */}
-      <div className='statitic-container flex flex-col my-5 gap-5 w-full justify-end'>
-        {/* W/L and Profit Growth */}
-        <div className={isTabletMidChart ? 'winrate-pg flex flex-col items-center gap-5 w-full justify-end' : 'winrate-pg flex items-center gap-5 w-full'}>
-          {/* W/L */}
-          <div className={isTabletMidChart ? 'winrate-container flex flex-col bg-[#1E2226] w-full rounded-lg' : 'winrate-container flex flex-col bg-[#1E2226] w-6/12 rounded-lg'}>
-            <span className={isTabletMidChart ? 'pl-10 pt-5 pb-5 text-2xl font-bold' : 'pl-10 pt-5 pb-2 text-2xl font-bold'}>Winrate</span>
-            <div className={isTabletMidWR ? 'overall-container flex flex-col gap-10 px-10 pb-5 w-full justify-center' : 'overall-container flex gap-20 px-10 pb-5 w-full justify-center'}>
-                <div className={isTabletMidChart ? isTabletMidWR ? 'b/s-container w-full h-[50vh]' : 'b/s-container w-4/12 h-[37vh]' : 'b/s-container w-3/12 h-[37vh]'}>
-                  {/* Side Doughnut Chart */}
-                  <canvas id='b/s' className='z-99'></canvas> 
-                </div>
-                <div className={isTabletMidChart ? isTabletMidWR ? 'buy-container w-full h-[50vh]' : 'buy-container w-4/12 h-[37vh]' : 'buy-container w-3/12 h-[37vh]'}>
-                  {/* Buy Doughnut Chart */}
-                  <canvas id='buy' className='z-99'></canvas> 
-                </div>
-                <div className={isTabletMidChart ? isTabletMidWR ? 'sell-container w-full h-[50vh]' : 'sell-container w-4/12 h-[37vh]' : 'sell-container w-3/12 h-[37vh]'}>
-                  {/* Sell Doughnut Chart */}
-                  <canvas id='sell' className='z-99'></canvas> 
-                </div>
+            {/* Date Filter */}
+            <div className="date-filter">
+              <button className="butttonShowCalender flex items-center gap-5 bg-[#2a2c2d] p-3 rounded-lg" onClick={() => {setCalendarVisible(!isCalendarVisible)}}>
+                <span>{formattedStartDate} - {formattedEndDate}</span>
+                <BsCalendar2DateFill/>
+              </button>
+              <ul className="ulShowDate absolute z-50">
+                {isCalendarVisible 
+                ? <li className="liCalender block">
+                    <DateRangePicker
+                      className="text-[#2C7AFE]"
+                      onChange={item => setDateRange([item.selection])}
+                      showSelectionPreview={true}
+                      moveRangeOnFirstSelection={false}
+                      months={2}
+                      ranges={dateRange}
+                      direction="horizontal"
+                    />
+                  </li> 
+                : <li className="liCalender hidden w-11/12">
+                    <DateRangePicker
+                      className="text-[#2C7AFE]"
+                      onChange={item => setDateRange([item.selection])}
+                      showSelectionPreview={true}
+                      moveRangeOnFirstSelection={false}
+                      months={2}
+                      ranges={dateRange}
+                      direction="horizontal"
+                    />
+                  </li>
+                }
+              </ul>
+            </div>
+
+            {/* Account Filter */}
+            <div className="account-filter whitespace-pre flex flex-auto items-center w-[16em] z-60 relative">
+              <p className="mr-2">Account :</p>
+              <DropDown
+                accountPick = {accountPick}
+                onAccountSelect={handleAccountSelection}
+              />
+            </div>
+            {/* Reset Button */}
+            <div className="resetButton bg-[#3a3c3d] rounded-lg flex-shrink-0">
+              <button className="py-3 px-5" onClick={() => {setAccountPick("All")}}>Reset</button>
             </div>
           </div>
 
-          {/* Profit Growth */}
-          <div className={`pg-container bg-[#1E2226] p-6 ${isTabletMidChart ? 'w-full' : 'w-6/12'} rounded-lg`}>
-            <span className='pl-5 text-2xl font-bold w-full'>Profit Growth</span>
-            <div className='px-5 pt-5 w-full h-[37vh]'>
-              <canvas id='pg'></canvas> 
+          {/* Static Contanier */}
+          <div className='statitic-container flex flex-col my-5 gap-5 w-full justify-end'>
+            {/* W/L and Profit Growth */}
+            <div className={isTabletMidChart ? 'winrate-pg flex flex-col items-center gap-5 w-full justify-end' : 'winrate-pg flex items-center gap-5 w-full'}>
+              {/* W/L */}
+              <div className={isTabletMidChart ? 'winrate-container flex flex-col bg-[#1E2226] w-full rounded-lg' : 'winrate-container flex flex-col bg-[#1E2226] w-6/12 rounded-lg'}>
+                <span className={isTabletMidChart ? 'pl-10 pt-5 pb-5 text-2xl font-bold' : 'pl-10 pt-5 pb-2 text-2xl font-bold'}>Winrate</span>
+                <div className={isTabletMidWR ? 'overall-container flex flex-col gap-10 px-10 pb-5 w-full justify-center' : 'overall-container flex gap-20 px-10 pb-5 w-full justify-center'}>
+                    <div className={isTabletMidChart ? isTabletMidWR ? 'b/s-container w-full h-[50vh]' : 'b/s-container w-4/12 h-[37vh]' : 'b/s-container w-3/12 h-[37vh]'}>
+                      {/* Side Doughnut Chart */}
+                      <canvas id='b/s' className='z-99'></canvas> 
+                    </div>
+                    <div className={isTabletMidChart ? isTabletMidWR ? 'buy-container w-full h-[50vh]' : 'buy-container w-4/12 h-[37vh]' : 'buy-container w-3/12 h-[37vh]'}>
+                      {/* Buy Doughnut Chart */}
+                      <canvas id='buy' className='z-99'></canvas> 
+                    </div>
+                    <div className={isTabletMidChart ? isTabletMidWR ? 'sell-container w-full h-[50vh]' : 'sell-container w-4/12 h-[37vh]' : 'sell-container w-3/12 h-[37vh]'}>
+                      {/* Sell Doughnut Chart */}
+                      <canvas id='sell' className='z-99'></canvas> 
+                    </div>
+                </div>
+              </div>
+
+              {/* Profit Growth */}
+              <div className={`pg-container bg-[#1E2226] p-6 ${isTabletMidChart ? 'w-full' : 'w-6/12'} rounded-lg`}>
+                <span className='pl-5 text-2xl font-bold w-full'>Profit Growth</span>
+                <div className='px-5 pt-5 w-full h-[37vh]'>
+                  <canvas id='pg'></canvas> 
+                </div>
+              </div>
+            </div>
+            
+            {/* PNL */}
+            <div className='pnl-container px-10 flex flex-col w-full bg-[#1E2226] rounded-lg'>
+              <span className='pt-7 text-2xl font-bold w-full'>PNL</span>
+              <div className='pnl-chart px-5 py-5 w-full h-[50vh]'>
+                <canvas id='pnl'></canvas>
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* PNL */}
-        <div className='pnl-container px-10 flex flex-col w-full bg-[#1E2226] rounded-lg'>
-          <span className='pt-7 text-2xl font-bold w-full'>PNL</span>
-          <div className='pnl-chart px-5 pt-5 w-full h-[50vh]'>
-            <canvas id='pnl'></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 };
 

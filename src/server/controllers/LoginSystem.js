@@ -111,7 +111,7 @@ const verifySignUpCode = async (req, res) => {
 
                     // Count all documents in the collection
                     const id = await collection.countDocuments({});
-                    const newUser = new User({ user_id: `${id}`, username: signupUsername, email: signupEmail, password: signupPassword, role:"user", isEmailVerified: false });
+                    const newUser = new User({ user_id: `${id}`, username: signupUsername, email: signupEmail, password: signupPassword, role:"user", isTwoFactor: false, phoneNumber: "-", profileImage_path: "" });
                     await newUser.save();
                 } finally {
                     // Optionally, you may clear the verification code from the session

@@ -8,13 +8,20 @@ import { reSendVerificationCode, verifyCode } from '../controllers/VerifySystem.
 
 // Controllers for Change System
 import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail, 
-         changePhoneNumber, 
-         changePassword, 
-         twoFactor } 
+         changePhoneNumber, sendCodeforNewPhone, verifyCodeForNewPhone,
+         changePassword, sendCodeforNewPassword, verifyCodeForNewPassword,
+         twoFactor
+         } 
          from '../controllers/ChangeSecurifyInfoSystem.js'
 
 // Controllers for Fetch Statement
 import { fetchOrder, fetchPosition } from '../controllers/FetchStatement.js'
+
+// Controllers for Fetch User Data
+import { getUserData } from '../controllers/FetchUserData.js'
+
+// Controllers for Update User Profile
+import { updateProfile } from '../controllers/UpdateProfile.js'
 
 // Models
 import { getModel } from '../Models/model.js'
@@ -24,7 +31,7 @@ import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAcco
 
 const router = express.Router()
 
-// ========================================= Login System =========================================
+// ============================================== Login System ==============================================
 
 // @ENDPOINT : http//localhost:5000/api/register
 // @METHOD : POST
@@ -56,7 +63,7 @@ router.post('/logout', signOut)
 // Authenticate user is logged in
 router.get('/auth-user', authenUser)
 
-// ======================================== Verification =========================================
+// ============================================== Verification ==============================================
 
 // @ENDPOINT : http://localhost:5000/api/resend-vc
 // @METHOD : POST
@@ -68,10 +75,10 @@ router.get('/resend-vc', reSendVerificationCode)
 // Send Verification Code
 router.post('/verify-code', verifyCode)
 
-// ======================================= Change System =========================================
+// ============================================= Change System ==============================================
 
 
-// 1 Change Email ================================================================================
+// 1 Change Email ===========================================================================================
 
 // @ENDPOINT : http//localhost:5000/api/change-email
 // @METHOD : POST
@@ -88,43 +95,63 @@ router.post('/send-cce', sendCodeToNewEmail)
 // Verify Code Change Email
 router.post('/verify-cce', verifyCodeForNewEmail)
 
-// 2 Change Phone Number =========================================================================
+// 2 Change Phone Number ====================================================================================
 
 // @ENDPOINT : http//localhost:5000/api/change-phone
 // @METHOD : POST
 // Change Phone Number
 router.post('/change-phone', changePhoneNumber)
 
-// 3 Change Password =============================================================================
+// @ENDPOINT : http//localhost:5000/api/change-phone
+// @METHOD : POST
+// Send Code Change Phone Number
+router.post('/send-ccphone', sendCodeforNewPhone)
+
+// @ENDPOINT : http//localhost:5000/api/change-phone
+// @METHOD : POST
+// Verify Code Change Phone Number
+router.post('/verify-ccphone', verifyCodeForNewPhone)
+
+// 3 Change Password ========================================================================================
 
 // @ENDPOINT : http//localhost:5000/api/change-pass
 // @METHOD : POST
 // Change Password
 router.post('/change-pass', changePassword)
 
-// 4 Two Factor ==================================================================================
+// @ENDPOINT : http//localhost:5000/api/change-phone
+// @METHOD : POST
+// Send Code Change Password
+router.post('/send-ccpass', sendCodeforNewPassword)
+
+// @ENDPOINT : http//localhost:5000/api/change-phone
+// @METHOD : POST
+// Verify Code Change Phone Number
+router.post('/verify-ccpass', verifyCodeForNewPassword)
+
+// 4 Two Factor =============================================================================================
 
 // @ENDPOINT : http//localhost:5000/api/two-factor
 // @METHOD : POST
 // 2-Factor Authentication
 router.post('/two-factor', twoFactor)
 
-// ======================================= AI model System =========================================
+// =========================================== AI model System ==============================================
 router.get('/model', getModel)
 
-// ======================================= get Account MT =========================================
+// ============================================ get Account MT ==============================================
 router.get('/account-mt', getAccountMT)
 
-// ======================================= send Account MT =========================================
+// ============================================ send Account MT =============================================
 router.post('/send-account-mt', sendAccountMT)
 
-// ======================================= bot in Account MT =========================================
+// ========================================== bot in Account MT =============================================
 router.post('/change-status-bot', changeStatusBot)
 
-// ======================================= edit in Account MT =========================================
+// ========================================== edit in Account MT ============================================
 router.post('/edit-account-mt', editAccountMT)
 
-// ======================================= delete in Account MT =========================================
+// ========================================= delete in Account MT ===========================================
 router.post('/delete-account-mt', deleteAccountMT)
 
 // ======================================= insert bot in Account MT =========================================
@@ -133,16 +160,32 @@ router.post('/insert-bot-account-mt', insertBotInAccountMT)
 // ======================================= delete bot in Account MT =========================================
 router.post('/delete-bot-account-mt', deleteBotInAccountMT)
 
-// ======================================= Fetch Statement =========================================
+// ============================================ Fetch Statement =============================================
 
 // @ENDPOINT : http//localhost:5000/api/fetch-order
-// @METHOD : POST
-// Change Password
+// @METHOD : GET
+// Get Order Data
 router.get('/fetch-order', fetchOrder)
 
 // @ENDPOINT : http//localhost:5000/api/fetch-position
-// @METHOD : POST
-// Change Password
+// @METHOD : GET
+// Get Position Data
 router.get('/fetch-position', fetchPosition)
+
+// ============================================ Fetch User Data =============================================
+
+// @ENDPOINT : http//localhost:5000/api/fetch-user-data
+// @METHOD : GET
+// Get User Data
+router.get('/fetch-user-data', getUserData)
+
+// ========================================== Update User Profile ===========================================
+
+// @ENDPOINT : http//localhost:5000/api/update-profile
+// @METHOD : POST
+// Update User Profile
+router.post('/update-profile', updateProfile)
+
+// ==========================================================================================================
 
 export default router;

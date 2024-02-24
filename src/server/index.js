@@ -35,7 +35,8 @@ app.use(cors({
   origin: ["http://localhost:3000"],
   credentials: true,
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })); // Adjust the limit as needed
 app.use(cookieParser());
 app.use(session({
   secret: salty,
