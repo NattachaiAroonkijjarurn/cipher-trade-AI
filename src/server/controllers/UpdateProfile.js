@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import { client } from "../db.js";
 import fs from "fs/promises";
 import path from "path";
+import bcrypt from 'bcrypt';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -84,4 +85,38 @@ const updateUsername = async (username, editedUserName, req) => {
     }
 };
 
-export { updateProfile };
+const deleteAccount = async(req, res) => {
+    try {
+
+        const { confirmPass } = req.body
+
+        const username = req.session.username
+        const user = await user_collection.findOne({"username": username})
+
+        // Check if the currentPassword matches the password in the database
+        const isPasswordValid = await bcrypt.compare(confirmPass, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ success: false, message: 'Password is incorrect' });
+        }
+
+        // Delete the user from the database
+        await user_collection.deleteOne({ "username": username });
+
+        // Optionally, you may want to clear the session or perform other cleanup steps
+        await req.session.destroy((err) => {
+            if (err) {
+              console.error('Error destroying session:', err);
+            } else {
+        
+              res.clearCookie('sessionID', { httpOnly: true, sameSite: 'strict' });
+              res.send({ "success": true, "message": 'Account deleted successfully' });
+      
+            }
+          });
+
+    } catch(err) {
+        res.status(500).send(err)
+    }
+}
+
+export { updateProfile, deleteAccount };

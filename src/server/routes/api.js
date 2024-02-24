@@ -21,7 +21,7 @@ import { fetchOrder, fetchPosition } from '../controllers/FetchStatement.js'
 import { getUserData } from '../controllers/FetchUserData.js'
 
 // Controllers for Update User Profile
-import { updateProfile } from '../controllers/UpdateProfile.js'
+import { updateProfile, deleteAccount } from '../controllers/UpdateProfile.js'
 
 // Models
 import { getModel } from '../controllers/GetModel.js'
@@ -56,7 +56,7 @@ router.post('/login', signIn)
 // @ENDPOINT : http//localhost:5000/api/logout
 // @METHOD : POST
 // Logout endpoint
-router.post('/logout', signOut)
+router.get('/logout', signOut)
 
 // @ENDPOINT : http//localhost:5000/api/auth-user
 // @METHOD : GET
@@ -185,6 +185,11 @@ router.get('/fetch-user-data', getUserData)
 // @METHOD : POST
 // Update User Profile
 router.post('/update-profile', updateProfile)
+
+// @ENDPOINT : http//localhost:5000/api/delete-acc
+// @METHOD : GET
+// Delete Account
+router.post('/delete-acc', deleteAccount)
 
 // ==========================================================================================================
 

@@ -435,9 +435,6 @@ const Overall = () => {
       let dailyBalance = profitGrowthData.map(yData => yData.y)
       let date = profitGrowthData.map(xData => xData.x)
 
-      console.log(dailyBalance)
-      console.log(date)
-    
       return new Chart(
         document.getElementById(canvasId).getContext('2d'),
         {

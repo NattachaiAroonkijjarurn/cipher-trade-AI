@@ -168,18 +168,21 @@ const signIn = async(req, res) => {
 }
 
 // ============================================== Logout ==============================================
-const signOut = async(req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-          console.error('Error destroying session:', err);
-          res.status(500).send('Internal Server Error');
-        } 
-        else {
-          res.clearCookie('sessionID');
-          res.send('Logout successful');
-        }
+const signOut = async (req, res) => {
+
+    await req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+        res.status(500).send('Internal Server Error');
+      } else {
+  
+        res.clearCookie('sessionID', { httpOnly: true, sameSite: 'strict' });
+        res.send('Logout successful');
+
+      }
     });
-}
+
+  };
 
 // ========================================= Authentication ===========================================
 const authenUser = async(req, res) => {

@@ -3,7 +3,7 @@ import axios from 'axios';
 import SuccessPassModal from './successPassModal';
 import VerifyCodePassModal from './verifyCodePassModal';
 
-const PasswordModal = () => {
+const PasswordModal = ({ onClose }) => {
   const [password, setPassword] = useState('');
   const [presentPassword, setCurrentPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,6 +21,7 @@ const PasswordModal = () => {
   const handleSuccessModalClose = () => {
     setShowVerifyCodeModal(false);
     setShowSuccessModal(false);
+    onClose()
     window.location.reload(true);
   };
 
@@ -59,6 +60,7 @@ const PasswordModal = () => {
       console.log(result);
 
       if (result.data.success) {
+        onClose()
         setShowVerifyCodeModal(true);
       }
 

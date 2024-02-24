@@ -3,7 +3,7 @@ import axios from 'axios';
 import SuccessEmailModal from './successEmailModal';
 import VerifyCodeEmailModal from './verifyCodeEmailModal';  // Import the VerifyCodeModal
 
-const EmailModal = () => {
+const EmailModal = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -16,6 +16,7 @@ const EmailModal = () => {
   const handleSuccessModalClose = () => {
     setShowVerifyCodeModal(false)
     setShowSuccessModal(false);
+    onClose()
     window.location.reload(true);
   };
 

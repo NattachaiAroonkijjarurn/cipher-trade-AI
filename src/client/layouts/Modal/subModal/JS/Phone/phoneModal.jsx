@@ -4,7 +4,7 @@ import SuccessPhoneModal from './successPhoneModal';
 import VerifyCodePhoneModal from './verifyCodePhoneModal';
 import '../../CSS/phoneModal.css'; // Import your styles
 
-const PhoneModal = () => {
+const PhoneModal = ({ onClose }) => {
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -17,6 +17,7 @@ const PhoneModal = () => {
   const handleSuccessModalClose = () => {
     setShowVerifyCodeModal(false);
     setShowSuccessModal(false);
+    onClose()
     window.location.reload(true);
   };
 
@@ -51,6 +52,7 @@ const PhoneModal = () => {
       console.log(newPhoneNumber);
 
       if (newPhoneNumber.data.success) {
+        onClose()
         setShowVerifyCodeModal(true);
       }
 

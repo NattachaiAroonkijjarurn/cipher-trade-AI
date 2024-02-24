@@ -246,7 +246,7 @@ const Statements = () => {
 
         {/* Type of Statements */}
         <LayoutGroup transition={{ duration: 0.5 }}>
-          <ol className='mt-6 mb-2 border-b-2 border-slate-500 w-11/12 gap-10'>
+          <ol className='mt-6 mb-2 border-b-2 border-slate-500 w-full gap-10'>
             {usingTabs.map(({ title, color }, i) => (
               <motion.li
                 key={i}
@@ -337,7 +337,7 @@ const Statements = () => {
             <div className="mt-3"> 
               {selectedTab == 0 
                 ? 
-                  <table className="text-center w-11/12" border="1">
+                  <table className="text-center w-full" border="1">
                     <thead className="text-slate-500">
                       {isTabletMid
                         ? <tr className="border-y-2 border-slate-500">
@@ -421,7 +421,7 @@ const Statements = () => {
                     </tbody>
                   </table>
               :
-                  <table className="text-center w-11/12" border="1">
+                  <table className="text-center w-full" border="1">
                     <thead className="text-slate-500">
                       {isTabletMid
                         ? <tr className="border-y-2 border-slate-500">
