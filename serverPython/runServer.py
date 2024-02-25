@@ -359,7 +359,6 @@ def server():
     while True:
         accounts_mt = collection_accountMT.find()
         for account_mt in accounts_mt:
-            # print(account_mt)
             user_id = account_mt.get("user_id")
             username_mt5 = account_mt.get("username_mt5")
             password_mt5 = account_mt.get("password_mt5")
@@ -524,5 +523,4 @@ try:
 except OSError or ValueError or Exception as e:
     logging.critical(f"Critical failure in server function: {e}")
     print(f"Scheduler error: {e}")
-    
     

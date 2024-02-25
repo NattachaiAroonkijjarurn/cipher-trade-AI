@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { fetchUsername } from "./fetch/fetchData";
+import { url_serverJs } from "../../config";
 
 //layout
 import "../layouts/DropDown/DropDown.css"
@@ -59,7 +60,7 @@ const AITradingBot = () => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await axios.get('http://localhost:5000/api/model');
+        const response = await axios.get(url_serverJs + '/api/model');
         setTableData(response.data); 
         setDefaultbot(response.data);
         setUsername(await fetchUsername()); // Ensure fetchUsername is async or handled correctly

@@ -58,6 +58,15 @@
     height: 50px;
     animation: spin 1s linear infinite;
   }
+
+  .loading-balance {
+    border: 7px solid #f3f3f3;
+    border-top: 7px solid #22c473;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    animation: spin 1s linear infinite;
+  }
   
   @keyframes spin {
     0% { transform: rotate(0deg); }

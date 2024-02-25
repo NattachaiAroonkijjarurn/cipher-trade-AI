@@ -34,7 +34,7 @@ desired_timezone = pytz.timezone('Europe/Istanbul')
 # Get the current time in the desired time zone
 current_time = datetime.now(desired_timezone) + timedelta(days=1)  # Setting it to a future date
 
-no_of_row = 252
+no_of_row = 1000
 
 def createPredict(curreny_pair, predict_buy, predict_sell, timestamp, timedata, marketopen) :
     return {
@@ -72,6 +72,7 @@ def process_currency_pair(currency, interval):
     scaler_buy = joblib.load(f'scalerBuy/scaler_{currency}{interval}.joblib')
     scaler_sell = joblib.load(f'scalerSell/scaler_{currency}{interval}.joblib')
     
+    
     scalers = {
         'buy': scaler_buy,
         'sell': scaler_sell
@@ -80,6 +81,9 @@ def process_currency_pair(currency, interval):
         'buy' : model_buy,
         'sell' : model_sell
     }
+    
+    data.to_csv(f'test/testdata{currency}{interval}.csv', index=False)
+    
     # print(data)
     # dropLastData
     data = data.iloc[:-1]
@@ -143,7 +147,7 @@ def process_currency_pair(currency, interval):
         data = dropColumn(data)
         x_test_scaled = scaler.transform(data)
         x_test_reshaped = np.reshape(x_test_scaled, (x_test_scaled.shape[0], 1, x_test_scaled.shape[1]))
-        y_pred = model_buy.predict(x_test_reshaped)
+        y_pred = model.predict(x_test_reshaped)
         
         query = {"model_name" : f'{state}_{currency}{interval}'}
         document = collection_models.find_one(query)

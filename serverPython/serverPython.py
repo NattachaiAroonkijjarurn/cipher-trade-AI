@@ -20,6 +20,13 @@ def kill_mt5():
             return
     print("MT5 process not found.")
 
+# def kill_mt5():
+#     try:
+#         subprocess.run(["taskkill", "/f", "/im", mt5_process_name], check=True)
+#         print("MT5 process killed successfully.")
+#     except Exception as e:
+#         print(f"Failed to kill MT5: {e}")
+
 def start_mt5():
     try:
         subprocess.Popen(mt5_path)
@@ -39,19 +46,22 @@ def checkAccountMT():
         except ValueError:
             return jsonify({"success": False, "message": "Username must be a numeric value"})
         
-        mt.initialize()
-        stateLogin = mt.login(username, password, server)
+        # mt.initialize()
+        print(username, password, server)
+        stateLogin = mt.initialize(login=username, password=password, server=server)
+        print(stateLogin)
         if not stateLogin:
+            mt.shutdown()
             kill_mt5()
-            time.sleep(1)
             start_mt5()
             return jsonify({"success": False, "message": "Failed to login with provided credentials"})
         else:
             accountInfo = mt.account_info()
+            mt.shutdown()
             return jsonify({"success": True, "account_info": {"name": accountInfo.name, "leverage": accountInfo.leverage, "balance": accountInfo.balance, "company": accountInfo.company}})
     except Exception as e:
+        mt.shutdown()
         kill_mt5()
-        time.sleep(1)
         start_mt5()
         return jsonify({"success": False ,"message" : "MT5 error"})
 

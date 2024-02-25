@@ -17,10 +17,10 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
 import { fetchOrder, fetchPosition } from '../controllers/FetchStatement.js'
 
 // Models
-import { getModel } from '../Models/model.js'
+import { getModel } from '../controllers/GetModel.js'
 
 //AccountMT
-import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../mt/accountMt.js'
+import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT, updateDetailAccountMT } from '../controllers/accountMt.js'
 
 const router = express.Router()
 
@@ -132,6 +132,9 @@ router.post('/insert-bot-account-mt', insertBotInAccountMT)
 
 // ======================================= delete bot in Account MT =========================================
 router.post('/delete-bot-account-mt', deleteBotInAccountMT)
+
+// ======================================= update detail Account MT =========================================
+router.post('/update-detail-account-mt', updateDetailAccountMT)
 
 // ======================================= Fetch Statement =========================================
 

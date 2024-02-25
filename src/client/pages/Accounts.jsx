@@ -4,6 +4,8 @@ import { FaEdit } from "react-icons/fa";
 import { CgAddR } from "react-icons/cg";
 import { FaTrashCan } from "react-icons/fa6";
 
+import { url_serverJs, url_serverPy } from "../../config"
+
 import "../pages/css/switch.css"
 
 import { fetchUserId, checkAccountMT } from "./fetch/fetchData";
@@ -40,45 +42,31 @@ const Wallets = () => {
 
   const [isLoading , setIsLoading] = useState(true)
 
+  const [loadingRefreshStates, setLoadingRefreshStates] = useState({});
+
   useEffect(() => {
     const fetchData = async () => {
       const fetchedUserId = await fetchUserId();
       setUserId(fetchedUserId);
       if (!fetchedUserId) return; 
       try {
-        const response = await axios.get(`http://localhost:5000/api/account-mt`, {
+        const response = await axios.get(url_serverJs + '/api/account-mt', {
           params: { user_id: fetchedUserId },
           withCredentials: true
         });
-
+        
         const accounts = response.data
-        const updateAccounts = []
-
-        for (const account of accounts) {
-          const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
-            username: account.username_mt5,
-            password: account.password_mt5,
-            server: account.server,
-          });
-          if (accountDetails.data.success) {
-            updateAccounts.push({
-              ...account,
-              leverage: accountDetails.data.account_info.leverage,
-              company: accountDetails.data.account_info.company,
-              balance: accountDetails.data.account_info.balance,
-            })
-          } else {
-            updateAccounts.push({
-              ...account,
-              leverage: '',
-              company: '',
-              balance: '',
-            })
-            console.log("Account check failed for account :", account.username_mt5);
-          }
-        }
+        const initialLoadingStates = accounts.reduce((acc, wallet) => {
+          acc[wallet.username_mt5] = false; // Initialize loading state as false for each wallet
+          return acc;
+        }, {});
+        console.log(initialLoadingStates)
+        
+        // Set the initial loading states
+        setLoadingRefreshStates(initialLoadingStates);
+        
         setIsDataFetched(true);
-        setWallet(updateAccounts);
+        setWallet(accounts);
       } catch (error) {
         setIsLoading(false)
         console.error("Failed to fetch account MT:", error);
@@ -116,6 +104,46 @@ const Wallets = () => {
     setcountModelName(model_name)
   };
 
+  const handleClickRefresh = async (username_mt5) => {
+    const updateAccounts = []
+    setLoadingRefreshStates(prev => ({ ...prev, [username_mt5]: true }));
+    try {
+      const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
+      console.log(username_mt5)
+      const accountDetails = await axios.post(url_serverPy + '/checkaccountmt', {
+        username: selectedWallet.username_mt5,
+        password: selectedWallet.password_mt5,
+        server: selectedWallet.server,
+      });
+      for (const account of wallets) {
+        if (accountDetails.data.success && account.username_mt5 === username_mt5) {
+          await axios.post(url_serverJs +'/api/update-detail-account-mt', {
+            username_mt5 : username_mt5,
+            leverage : accountDetails.data.account_info.leverage,
+            company: accountDetails.data.account_info.company,
+            balance: accountDetails.data.account_info.balance,
+          }, {withCredentials: true})
+          updateAccounts.push({
+            ...account,
+            leverage: accountDetails.data.account_info.leverage,
+            company: accountDetails.data.account_info.company,
+            balance: accountDetails.data.account_info.balance,
+          })
+        } else {
+          updateAccounts.push({
+            ...account,
+          })
+        }
+      }
+      setLoadingRefreshStates(prev => ({ ...prev, [username_mt5]: false }));
+      setWallet(updateAccounts);
+    } catch (error) {
+      setLoadingRefreshStates(prev => ({ ...prev, [username_mt5]: false }));
+      console.log("update detail account mt error", error.response.data)
+      console.log("Account check failed for account :", username_mt5);
+    }
+  }
+
   const handleToggleBotStatus = async (user_id, usernameMt5, modelName, currentStatus) => {
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     
@@ -135,7 +163,7 @@ const Wallets = () => {
     setWallet(updatedWallets);
     
     try {
-      const temp = await axios.post('http://localhost:5000/api/change-status-bot', {
+      const temp = await axios.post(url_serverJs + '/api/change-status-bot', {
         user_id: user_id,
         username_mt5: usernameMt5,
         model_name: modelName,
@@ -204,8 +232,12 @@ const Wallets = () => {
                 <h2 className="text-lg font-bold">{wallet.name_account}</h2>
                 <h3 className="text-sm ml-5">Estiamted Balance</h3>
                 <div className="flex items-center text-[#04A66D] ml-4">
+                  
                   <h1 className="flex text-2xl ml-2"><FaCoins/></h1>
-                  <h1 className="flex text-2xl ml-2">{wallet.balance}</h1>
+                  {loadingRefreshStates[wallet.username_mt5] ?
+                    <div className="ml-2 loading-balance"></div>
+                    : 
+                    <h1 className="flex text-2xl ml-2">{wallet.balance}</h1>} 
                   <h1 className="flex text-2xl ml-2">USD</h1>
                 </div>
               </div>
@@ -233,8 +265,14 @@ const Wallets = () => {
               </div>
               <div className="flex flex-col justify-between gap-2">
                 <div className="flex gap-2">
-                  <button className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900">
-                    refresh
+                  <button 
+                    className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900"
+                    onClick={() => handleClickRefresh(wallet.username_mt5)}>
+                    {loadingRefreshStates[wallet.username_mt5] ? (
+                      <div>Loading...</div>
+                    ) : (
+                      "refresh"
+                    )}
                   </button>
                   <button 
                     className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900"
@@ -276,17 +314,17 @@ const Wallets = () => {
                     <div className={bot.status === 'active' ? 'text-green-500' : 'text-red-500'}>{bot.status}</div>
                   </div>
                 </div>
-                <div className="flex flex-col">
-                  <ToggleSwitch
-                    isOn={bot.status === 'active'}
-                    onToggle={() => handleToggleBotStatus(wallet.user_id, wallet.username_mt5, bot.model_name, bot.status)}
-                  />
+                <div className="flex flex-row">
                   <button
-                    className="text-red-500 flex justify-end"
+                    className="text-red-500 flex justify-end mr-4 mt-1"
                     onClick={() => handleDeleteBotClick(wallet.username_mt5, bot.model_name)}
                     >
                     <FaTrashCan/>
                   </button>
+                  <ToggleSwitch
+                    isOn={bot.status === 'active'}
+                    onToggle={() => handleToggleBotStatus(wallet.user_id, wallet.username_mt5, bot.model_name, bot.status)}
+                  />
                 </div>
               </div>
             ))}
@@ -334,7 +372,7 @@ const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wal
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const temp = await axios.post('http://localhost:5000/api/delete-bot-account-mt', {
+      const temp = await axios.post(url_serverJs + '/api/delete-bot-account-mt', {
         user_id: user_id,
         username_mt5: username_mt5,
         model_name: model_name,
@@ -401,7 +439,7 @@ const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wal
 }
 
 const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
-  const [walletName, setWalletName] = useState('')
+  const [accountName, setAccountName] = useState('')
   const [usernameMT, setUsernameMT] = useState('')
   const [passwordMT, setPasswordMT] = useState('')
   const [serverMT, setserverMT] = useState('')
@@ -415,38 +453,34 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
     e.preventDefault();
     setIsLoading(true)
 
-    const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
+    const accountDetails = await axios.post(url_serverPy + '/checkaccountmt', {
       username: usernameMT,
       password: passwordMT,
       server: serverMT,
     });
 
     if (accountDetails.data.success) {
-      const newWallet = {
-        id : walletName,
+      const newAccountMT = {
+        user_id : user_id,
+        name_account : accountName,
         username_mt5 : usernameMT,
         password_mt5 : passwordMT,
         server : serverMT,
         leverage : accountDetails.data.account_info.leverage,
         company : accountDetails.data.account_info.company,
         balance : accountDetails.data.account_info.balance,
+        bot : []
       }
 
       try {
-        
-        const response = await axios.post(`http://localhost:5000/api/send-account-mt`, {
-          name_account: walletName,
-          username_mt5: usernameMT,
-          password_mt5: passwordMT,
-          server: serverMT,
-          user_id: user_id,
-          bots: []
+        const response = await axios.post(url_serverJs + "/api/send-account-mt", {
+          newAccountMT
         });
 
-        setWallet((prevBots) => [...prevBots, newWallet]);
+        setWallet((prevBots) => [...prevBots, newAccountMT]);
         
         setIsLoading(false)
-        setWalletName('')
+        setAccountName('')
         setUsernameMT('')
         setPasswordMT('')
         setserverMT('')
@@ -464,7 +498,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
   }
 
   const handleClose = () => {
-    setWalletName('')
+    setAccountName('')
     setUsernameMT('')
     setPasswordMT('')
     setserverMT('')
@@ -519,19 +553,19 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
           >
             <div className="font-medium text-zinc-400 text-sm">
               <label 
-                htmlFor="walletname"
+                htmlFor="accountName"
                 className="block mb-2 "
                 >
                 Account name
               </label>
               <input 
                 type="text" 
-                id="walletname"
+                id="accountName"
                 className="bg-[#1E2226] border border-gray-600 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-lg w-full p-2.5"
                 placeholder="wallet name"
                 required
-                value={walletName}
-                onChange={(e) => setWalletName(e.target.value)}
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
               />
               <label 
                 htmlFor="usernameMT"
@@ -631,24 +665,21 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
     };
 
     try {
-      const accountDetails = await axios.post('http://localhost:8000/checkaccountmt', {
+      const accountDetails = await axios.post(url_serverPy + '/checkaccountmt', {
         username: updatedAccount.username_mt5,
         password: updatedAccount.password_mt5,
         server: updatedAccount.server,
       });
-      console.log("HI")
       if (accountDetails.data.success) {
-        const updatedWallets = wallets.map(wallet => {
-          if (wallet.username_mt5 === updatedAccount.username_mt5) {
-            return { ...wallet, ...updatedAccount };
-          }
-          return wallet;
-        });
-        setWallet(updatedWallets);
-    
         try {
-          const response = await axios.post('http://localhost:5000/api/edit-account-mt', updatedAccount);
-          console.log('Edit successful:', response.data);
+          const response = await axios.post(url_serverJs + '/api/edit-account-mt', updatedAccount);
+          const updatedWallets = wallets.map(wallet => {
+            if (wallet.username_mt5 === updatedAccount.username_mt5) {
+              return { ...wallet, ...updatedAccount };
+            }
+            return wallet;
+          });
+          setWallet(updatedWallets);
           setLoading(false);
           onClose();
         } catch (error) {
@@ -669,7 +700,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
     setShowConfirmDelete(false)
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/delete-account-mt', {
+      const response = await axios.post(url_serverJs + '/api/delete-account-mt', {
         username_mt5: wallet.username_mt5,
         user_id : user_id
       });
@@ -862,7 +893,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
     };
   
     try {
-      const responseInsertBot = await axios.post('http://localhost:5000/api/insert-bot-account-mt', {
+      const responseInsertBot = await axios.post(url_serverJs + '/api/insert-bot-account-mt', {
         user_id: user_id,
         username_mt5: wallet.username_mt5, // Make sure this matches the expected field name in your server-side code
         bot: newBot

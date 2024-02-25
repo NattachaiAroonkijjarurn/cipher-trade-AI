@@ -40,7 +40,7 @@ app.use(cookieParser());
 app.use(session({
   secret: salty,
   resave: true,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false },
 }));
 
