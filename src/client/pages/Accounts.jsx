@@ -266,12 +266,18 @@ const Wallets = () => {
               <div className="flex flex-col justify-between gap-2">
                 <div className="flex gap-2">
                   <button 
-                    className="text-white border border-gray-500 rounded-lg px-3 py-1 hover:bg-zinc-800 active:bg-zinc-900"
+                    className="flex justify-center items-center text-white border border-gray-500 rounded-lg px-4 py-1 hover:bg-zinc-800 active:bg-zinc-900"
                     onClick={() => handleClickRefresh(wallet.username_mt5)}>
                     {loadingRefreshStates[wallet.username_mt5] ? (
-                      <div>Loading...</div>
+                      <div className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </div>
                     ) : (
-                      "refresh"
+                      "Refresh"
                     )}
                   </button>
                   <button 
@@ -469,13 +475,13 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
         leverage : accountDetails.data.account_info.leverage,
         company : accountDetails.data.account_info.company,
         balance : accountDetails.data.account_info.balance,
-        bot : []
+        bots : []
       }
 
       try {
-        const response = await axios.post(url_serverJs + "/api/send-account-mt", {
+        const response = await axios.post(url_serverJs + "/api/send-account-mt", 
           newAccountMT
-        });
+        );
 
         setWallet((prevBots) => [...prevBots, newAccountMT]);
         
@@ -731,18 +737,27 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (showConfirmDelete) {
+      setAnimation("modal-enter");
+      setTimeout(() => {
+        setAnimation("modal-enter-active");
+      }, 10);
+    }
+  }, [showConfirmDelete]);
+
   if (!isOpen) return null;
 
   if (showConfirmDelete) {
     return (
       <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
-        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/6 xl:w-1/4 max-w-4xl ${animation}`} 
+        <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/6 xl:w-1/5 max-w-4xl ${animation}`} 
           style={{
           maxHeight: '90vh',
           overflowY: 'auto'
         }}>
           <h2 className="text-lg text-white text-center mb-10">
-            Are you sure you want to delete account <span className="text-blue-500">{wallet.name_account}</span> ?
+            Are you sure you want to delete account <span className="text-blue-500">{wallet.name_account}</span>?
           </h2>
           {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
           <div className="flex justify-between flex-col md:flex-row gap-2">
@@ -896,7 +911,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
       const responseInsertBot = await axios.post(url_serverJs + '/api/insert-bot-account-mt', {
         user_id: user_id,
         username_mt5: wallet.username_mt5, // Make sure this matches the expected field name in your server-side code
-        bot: newBot
+        bots: newBot
       });
   
       // Success case
