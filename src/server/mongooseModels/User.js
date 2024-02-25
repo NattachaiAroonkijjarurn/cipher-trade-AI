@@ -7,7 +7,9 @@ const User = mongoose.model('account_users', {
     email: String,
     password: String,
     role: String,
-    isEmailVerified: Boolean
+    isTwoFactor: Boolean,
+    phoneNumber: String,
+    profileImage_path: String
   });
 
 export { User }

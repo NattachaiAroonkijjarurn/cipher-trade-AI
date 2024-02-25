@@ -1,7 +1,7 @@
 import React from 'react';
 // import '../CSS/successModal.css'; // Import your styles
 
-const SuccessModal = ({ onClose }) => {
+const SuccessEmailModal = ({ onClose }) => {
   return (
     <div className="success-modal px-20 py-10">
       <div className="modal-content flex flex-col justify-center">
@@ -15,4 +15,4 @@ const SuccessModal = ({ onClose }) => {
   );
 };
 
-export default SuccessModal;
+export default SuccessEmailModal;

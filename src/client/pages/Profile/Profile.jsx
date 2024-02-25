@@ -1,6 +1,6 @@
 // React
 import { useMediaQuery } from "react-responsive";
-import { useEffect, useState } from "react";
+import { useEffect, useInsertionEffect, useState } from "react";
 import { Tooltip } from 'react-tooltip';
 import { HashLink } from "react-router-hash-link";
 
@@ -17,6 +17,9 @@ import Security from "./Security"
 import DlAcc from "./DlAcc"
 import Commission from "./Commission"
 
+// Axios
+import axios from "axios";
+
 const Profile = () => {
   // Check Window Size for Responsive
   let isTabletMid = useMediaQuery({ query: "(max-width: 880px)" });
@@ -28,27 +31,24 @@ const Profile = () => {
   const [userData, setUserData] = useState({});
 
   useEffect(() => {
-    // Fetch data when the component mounts
-    // Replace this with your actual data fetching logic
-    const fetchData = async () => {
-        try {
-            // Simulate a delay for loading animation (adjust the timeout duration as needed)
-            setTimeout(async () => {
-              const response = await fetch("http://localhost:3000/Data/data.json");
-              const data = await response.json();
+    const fetchUserData = async() => {
+      try {
+        const userDataRes = await axios.get('http://localhost:5000/api/fetch-user-data', {
+          withCredentials: true
+        })
 
-              // Set the fetched data to the state
-              setUserData(data[0]);  // Assuming the data is an array, so access the first element
-              setIsLoading(false);
-            }, 500); // 1500 milliseconds (1.5 seconds) timeout
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            setIsLoading(false)
-        }
-    };
+        setUserData(userDataRes.data)
 
-    fetchData();
-  }, []);
+      } catch(err) {
+        console.log(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUserData()
+
+  }, [])
 
   // Set Sidebar Menu
   const [sbMenu, setSBMenu] = useState(0)
@@ -82,10 +82,14 @@ const Profile = () => {
   },
 ];
 
+const handleProfileUpdate = (updatedData) => {
+  setUserData(updatedData)
+}
+
   useEffect(() => {
     switch (sbMenu) {
       case 0:
-        setSubPage(<MyProfile data={userData}/>);
+        setSubPage(<MyProfile data={userData} onProfileUpdate={handleProfileUpdate}/>);
         break;
       case 1:
         setSubPage(<Security data={userData}/>);
@@ -118,7 +122,7 @@ const Profile = () => {
               {isTabletMid 
                 ? <div className="img-name z-10 flex flex-col items-center">
                     <img 
-                      src={userData.profileImage ? userData.profileImage : default_profile } 
+                      src={ userData.profileImage_path == "" ? default_profile : userData.profileImage_path } 
                       alt="Profile" 
                       className="w-12/12 h-[30vh] object-cover rounded-full z-10 border-white border-2"
                       onError={(e) => e.target.src = default_profile}
@@ -127,7 +131,7 @@ const Profile = () => {
                   </div>
                 : <div className="img-name z-10 flex items-center">
                     <img 
-                      src={userData.profileImage} 
+                      src={ userData.profileImage_path == "" ? default_profile : userData.profileImage_path } 
                       alt="Profile" 
                       className="w-12/12 h-[50vh] object-cover rounded-full self-start z-10 border-white border-2"
                       onError={(e) => e.target.src = default_profile}

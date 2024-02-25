@@ -25,7 +25,6 @@ const App = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isInitialCheckDone, setIsInitialCheckDone] = useState(false);
 
   useEffect(() => {

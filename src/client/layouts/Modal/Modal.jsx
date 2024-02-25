@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import './Modal.css';
 
 // Sub Modal
-import EmailModal from "./subModal/JS/emailModal"
-import PhoneModal from "./subModal/JS/phoneModal"
-import PasswordModal from "./subModal/JS/passwordModal"
+import EmailModal from "./subModal/JS/Email/emailModal"
+import PhoneModal from "./subModal/JS/Phone/phoneModal"
+import PasswordModal from "./subModal/JS/Password/passwordModal"
 import AuthenModal from "./subModal/JS/authenModal"
-import DlAccModal from './subModal/JS/dlAccModal';
+import DlAccModal from './subModal/JS/DlAccModal/dlAccModal';
 
 const Modal = ({ showModal, onClose, modalType }) => {
   let modalContent;
@@ -26,16 +26,16 @@ const Modal = ({ showModal, onClose, modalType }) => {
       modalContent = <EmailModal onClose={onClose} onSubmit={handleChangeSuccess} />;
       break;
     case 'phoneNumber':
-      modalContent = <PhoneModal/>;
+      modalContent = <PhoneModal onClose={onClose}/>;
       break;
     case 'password':
-      modalContent = <PasswordModal/>;
+      modalContent = <PasswordModal onClose={onClose}/>;
       break;
     case 'authen':
       modalContent = <AuthenModal/>;
       break;
     case 'dlAcc':
-      modalContent = <DlAccModal/>;
+      modalContent = <DlAccModal onClose={onClose}/>;
       break;
     default:
       modalContent = <p className='text-[#FFFFFF]'>Don't Have Modal.</p>;

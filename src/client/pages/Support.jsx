@@ -74,12 +74,12 @@ const Support = () => {
   const isVisible3 = useOnScreen(ref3);
   const isVisible4 = useOnScreen(ref4);
   return (
-    <div className={`page-container ${animate ? 'slide-up-animation' : animate2}`}>
-      <div className="flex flex-col">
+    <div className={`page-container w-full ${animate ? 'slide-up-animation' : animate2}`}>
+      <div className="flex flex-col gap-5">
         <div ref={ref1} className={`flex flex-col xl:flex-row justify-between gap-20 ${isVisible1 ? 'slide-up-animation' : ''}`}>
-          <img className="h-screen w-[1000px] object-cover" src={atomate} alt="" />
-          <div className='flex w-full h-screen max-w-[800px]'>
-            <div className="text-container max-w-[400px] text-blue-200 mx-10 my-10 py-5 flex flex-col justify-center">
+          <img className="h-screen w-6/12 object-cover" src={atomate} alt="" />
+          <div className='flex w-full h-screen'>
+            <div className="text-container text-blue-200 mx-10 my-10 py-5 flex flex-col justify-center">
               <div className='flex items-center text-[60px] font-semibold'>Automation</div>
               <div className='flex items-center font-medium text-xl items-end mt-20'> Explain how AI trading bots can automate trading strategies, allowing traders to execute trades 24/7 without manual intervention.</div>
             </div>
