@@ -27,7 +27,7 @@ import { updateProfile, deleteAccount } from '../controllers/UpdateProfile.js'
 import { getModel } from '../controllers/GetModel.js'
 
 //AccountMT
-import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../mt/accountMt.js'
+import { getAccountMT, sendAccountMT, changeStatusBot, editAccountMT, deleteAccountMT, insertBotInAccountMT, deleteBotInAccountMT } from '../controllers/AccountMt.js'
 
 const router = express.Router()
 
@@ -160,10 +160,7 @@ router.post('/insert-bot-account-mt', insertBotInAccountMT)
 // ======================================= delete bot in Account MT =========================================
 router.post('/delete-bot-account-mt', deleteBotInAccountMT)
 
-// ======================================= update detail Account MT =========================================
-router.post('/update-detail-account-mt', updateDetailAccountMT)
-
-// ============================================ Fetch Statement =============================================
+// ======================================= Fetch Statement =========================================
 
 // @ENDPOINT : http//localhost:5000/api/fetch-order
 // @METHOD : GET
