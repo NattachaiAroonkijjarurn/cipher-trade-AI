@@ -109,7 +109,7 @@ def getSetPosition(mt, username_mt5, side, result, position_history, comment) :
         symbol = result.request.symbol
         status = 'open'
         entryprice = result.price
-        entrytime = position_history[0].time_setup
+        entrytime = position_history[0].time_setup * 1000 #to milliseconds
         tp = result.request.tp
         sl = result.request.sl
         lotsize = position_history[0].volume_initial
@@ -185,7 +185,7 @@ def checkClosePosition (poss, user_id, username_mt5, password_mt5, server) :
             volume = order_mt5[0].volume_initial
             price_open = order_mt5[0].price_current
             price_close = order_mt5[1].price_current
-            exittime = order_mt5[1].time_setup
+            exittime = order_mt5[1].time_setup * 1000 #to milliseconds
             
             account_info = mt.account_info()
             balance = account_info.balance

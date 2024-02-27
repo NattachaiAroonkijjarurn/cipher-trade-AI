@@ -8,7 +8,7 @@ import "../layouts/DropDown/DropDown.css"
 
 // DatePicker
 import { DateRangePicker } from 'react-date-range';
-import { startOfYear, set } from 'date-fns';
+import { startOfYear, set, addYears } from 'date-fns';
 import moment from 'moment'; // for change the format of date
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -106,7 +106,7 @@ const Statements = () => {
     const [dateRange, setDateRange] = useState([
       {
         startDate: set(startOfYear(new Date()), { hours: 0, minutes: 0, seconds: 0 }),
-        endDate: new Date(),
+        endDate: addYears(new Date(), 2),
         key: 'selection'
       }
     ]);
