@@ -60,7 +60,6 @@ const Wallets = () => {
           acc[wallet.username_mt5] = false; // Initialize loading state as false for each wallet
           return acc;
         }, {});
-        console.log(initialLoadingStates)
         
         // Set the initial loading states
         setLoadingRefreshStates(initialLoadingStates);
@@ -109,7 +108,6 @@ const Wallets = () => {
     setLoadingRefreshStates(prev => ({ ...prev, [username_mt5]: true }));
     try {
       const selectedWallet = wallets.find(wallet => wallet.username_mt5 === username_mt5);
-      console.log(username_mt5)
       const accountDetails = await axios.post(url_serverPy + '/checkaccountmt', {
         username: selectedWallet.username_mt5,
         password: selectedWallet.password_mt5,

@@ -157,10 +157,31 @@ const deleteBotInAccountMT = async (req, res) => {
   }
 };
 
+const updateDetailAccount = async (req, res) => {
+  try {
+    const user_id = req.session.user_id
+    const { username_mt5 ,leverage, company, balance} = req.body
+    const result = await collection_account_mt.updateOne({
+      "username_mt5" : username_mt5,
+      "user_id" : user_id,
+    }, {
+      "$set" : {
+        "leverage" : leverage,
+        "company" : company,
+        "balance" : balance
+      }
+    })
+    res.status(200).json({message : "update detail account mt success"})
+  } catch (error) {
+    res.status(500).json({ message: "Can't update detail account mt", error: error });
+  }
+}
+
 export {getAccountMT, 
   sendAccountMT, 
   changeStatusBot, 
   editAccountMT, 
   deleteAccountMT, 
   insertBotInAccountMT, 
-  deleteBotInAccountMT}
+  deleteBotInAccountMT,
+  updateDetailAccount}
