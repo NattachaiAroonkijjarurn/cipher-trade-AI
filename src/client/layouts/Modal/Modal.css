@@ -97,3 +97,61 @@
   animation: fadeOut 0.5s ease-out;
   animation-fill-mode: forwards; /* Ensure the final state of the animation is maintained */
 }
+
+/* Overlay animation */
+.view-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeInView 0.3s ease-out; /* Add fadeIn animation */
+  z-index: 999;
+}
+
+/* ViewModal animation */
+.view-modal {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  animation: fadeInView 0.5s ease-out; /* Add floatIn animation */
+  position: fixed; /* Use fixed positioning for overlay */
+  top: 50%; /* Place the modal 50% from the top */
+  left: 50%; /* Place the modal 50% from the left */
+  transform: translate(-50%, -50%); /* Center the modal */
+  z-index: 1000;
+}
+
+/* Apply floatOut animation when modal is closed */
+.view-modal.hide {
+  animation: floatOut 0.5s ease-out;
+  animation-fill-mode: forwards; /* Ensure the final state of the animation is maintained */
+}
+
+.view-modal-overlay.hide {
+  animation: fadeOut 0.5s ease-out;
+  animation-fill-mode: forwards; /* Ensure the final state of the animation is maintained */
+}
+
+.close-view-button {
+  position: fixed;
+  top: -10px;
+  right: -10px;
+  cursor: pointer;
+  border-radius: 100%;
+  background-color: rgba(255, 77, 77, 0.8);
+  padding: 3px 10px 3px 10px;
+  z-index: 1001; /* Ensure it is above the view-modal */
+}
+
+/* Add the animation keyframes */
+@keyframes fadeInView {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

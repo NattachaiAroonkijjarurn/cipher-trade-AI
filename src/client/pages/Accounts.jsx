@@ -473,9 +473,9 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
       }
 
       try {
-        const response = await axios.post(url_serverJs + "/api/send-account-mt", {
+        const response = await axios.post(url_serverJs + "/api/send-account-mt", 
           newAccountMT
-        });
+        );
 
         setWallet((prevBots) => [...prevBots, newAccountMT]);
         

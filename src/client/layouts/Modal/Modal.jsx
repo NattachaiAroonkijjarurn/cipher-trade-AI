@@ -8,6 +8,7 @@ import PhoneModal from "./subModal/JS/Phone/phoneModal"
 import PasswordModal from "./subModal/JS/Password/passwordModal"
 import AuthenModal from "./subModal/JS/authenModal"
 import DlAccModal from './subModal/JS/DlAccModal/dlAccModal';
+import QRCodeModal from './subModal/JS/QRCodeModal/qrCodeModal';
 
 const Modal = ({ showModal, onClose, modalType }) => {
   let modalContent;
@@ -36,6 +37,9 @@ const Modal = ({ showModal, onClose, modalType }) => {
       break;
     case 'dlAcc':
       modalContent = <DlAccModal onClose={onClose}/>;
+      break;
+    case 'qrCode':
+      modalContent = <QRCodeModal onClose={onClose}/>;
       break;
     default:
       modalContent = <p className='text-[#FFFFFF]'>Don't Have Modal.</p>;

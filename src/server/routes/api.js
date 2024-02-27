@@ -15,7 +15,7 @@ import { changeEmail, sendCodeToNewEmail, verifyCodeForNewEmail,
          from '../controllers/ChangeSecurifyInfoSystem.js'
 
 // Controllers for Fetch Statement
-import { fetchOrder, fetchPosition } from '../controllers/FetchStatement.js'
+import { fetchOrder, fetchPosition, fetchCommission, uploadPayment } from '../controllers/FetchStatement.js'
 
 // Controllers for Fetch User Data
 import { getUserData } from '../controllers/FetchUserData.js'
@@ -171,6 +171,17 @@ router.get('/fetch-order', fetchOrder)
 // @METHOD : GET
 // Get Position Data
 router.get('/fetch-position', fetchPosition)
+
+
+// @ENDPOINT : http//localhost:5000/api/fetch-commission
+// @METHOD : GET
+// Get Commission Data
+router.get('/fetch-commission', fetchCommission)
+
+// @ENDPOINT : http//localhost:5000/api/upload-payment
+// @METHOD : POST
+// Upload Transcript Image
+router.post('/upload-payment', uploadPayment)
 
 // ============================================ Fetch User Data =============================================
 

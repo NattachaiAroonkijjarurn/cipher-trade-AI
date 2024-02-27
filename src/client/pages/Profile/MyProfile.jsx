@@ -113,6 +113,7 @@ export default function MyProfile({ data, onProfileUpdate }) {
     // Function for POST
     const uploadProfile = async () => {
       try {
+        console.log(profileImage)
         const profileRes = await axios.post(
           "http://localhost:5000/api/update-profile",
           formData,
