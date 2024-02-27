@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 
 // Replace 'python3' with 'python' or the appropriate command for your setup
 // Also, adjust the path to your Python script as necessary
-const pythonProcess = spawn('python', ['src/serverMT/server_mt.py']);
+const pythonProcess = spawn('python', ['-u', 'src/serverMT/server_mt.py']);
 
 pythonProcess.stdout.on('data', (data) => {
   console.log(`stdout: ${data}`);

@@ -241,3 +241,41 @@
 2024-02-27 18:35:18,867 - prediction_process - INFO - Processing AUDUSD for interval 5m at 2024-02-27 18:35:18.867679 not crossover open
 2024-02-27 18:35:18,880 - prediction_process - INFO - Processing GBPUSD for interval 5m at 2024-02-27 18:35:18.880885 not crossover open
 2024-02-27 18:35:19,179 - prediction_process - INFO - Processing USDCAD for interval 5m at 2024-02-27 18:35:19.179187 crossover : buy  open
+2024-02-27 18:45:00,557 - prediction_process - INFO - Running tasks for intervals ['5m', '15m'] at 2024-02-27 18:45:00.046775
+2024-02-27 18:45:14,757 - prediction_process - INFO - Processing EURUSD for interval 5m at 2024-02-27 18:45:14.757812 not crossover open
+2024-02-27 18:45:14,869 - prediction_process - INFO - Processing EURUSD for interval 15m at 2024-02-27 18:45:14.869570 not crossover open
+2024-02-27 18:45:14,938 - prediction_process - INFO - Processing USDCAD for interval 15m at 2024-02-27 18:45:14.938518 not crossover open
+2024-02-27 18:45:14,993 - prediction_process - INFO - Processing USDCHF for interval 15m at 2024-02-27 18:45:14.993706 not crossover open
+2024-02-27 18:45:14,996 - prediction_process - INFO - Processing AUDUSD for interval 5m at 2024-02-27 18:45:14.996843 not crossover open
+2024-02-27 18:45:15,039 - prediction_process - INFO - Processing AUDUSD for interval 15m at 2024-02-27 18:45:15.039089 not crossover open
+2024-02-27 18:45:15,072 - prediction_process - INFO - Processing GBPUSD for interval 15m at 2024-02-27 18:45:15.072622 not crossover open
+2024-02-27 18:45:15,073 - prediction_process - INFO - Processing USDCHF for interval 5m at 2024-02-27 18:45:15.073614 not crossover open
+2024-02-27 18:45:15,193 - prediction_process - INFO - Processing GBPUSD for interval 5m at 2024-02-27 18:45:15.193600 not crossover open
+2024-02-27 18:45:15,212 - prediction_process - INFO - Processing USDCAD for interval 5m at 2024-02-27 18:45:15.212638 not crossover open
+2024-02-27 18:50:00,544 - prediction_process - INFO - Running tasks for intervals ['5m'] at 2024-02-27 18:50:00.032695
+2024-02-27 18:50:08,301 - prediction_process - INFO - Processing AUDUSD for interval 5m at 2024-02-27 18:50:08.301849 not crossover close
+2024-02-27 18:50:08,399 - prediction_process - INFO - Processing USDCHF for interval 5m at 2024-02-27 18:50:08.399067 not crossover close
+2024-02-27 18:50:08,466 - prediction_process - INFO - Processing USDCAD for interval 5m at 2024-02-27 18:50:08.466861 not crossover close
+2024-02-27 18:50:08,555 - prediction_process - INFO - Processing EURUSD for interval 5m at 2024-02-27 18:50:08.555076 not crossover open
+2024-02-27 18:50:08,564 - prediction_process - INFO - Processing GBPUSD for interval 5m at 2024-02-27 18:50:08.564588 not crossover open
+2024-02-27 19:00:00,592 - prediction_process - INFO - Running tasks for intervals ['5m', '15m', '30m', '1h'] at 2024-02-27 19:00:00.080298
+2024-02-27 19:00:23,662 - prediction_process - INFO - Processing USDCAD for interval 15m at 2024-02-27 19:00:23.662938 not crossover open
+2024-02-27 19:00:23,826 - prediction_process - INFO - Processing USDCAD for interval 5m at 2024-02-27 19:00:23.826103 not crossover open
+2024-02-27 19:00:23,967 - prediction_process - INFO - Processing USDCHF for interval 5m at 2024-02-27 19:00:23.967141 not crossover open
+2024-02-27 19:00:24,103 - prediction_process - INFO - Processing USDCAD for interval 30m at 2024-02-27 19:00:24.103368 not crossover open
+2024-02-27 19:00:24,136 - prediction_process - INFO - Processing AUDUSD for interval 15m at 2024-02-27 19:00:24.136471 not crossover open
+2024-02-27 19:00:24,155 - prediction_process - INFO - Processing EURUSD for interval 1h at 2024-02-27 19:00:24.155223 not crossover open
+2024-02-27 19:00:24,217 - prediction_process - INFO - Processing USDCHF for interval 15m at 2024-02-27 19:00:24.217247 not crossover open
+2024-02-27 19:00:24,280 - prediction_process - INFO - Processing EURUSD for interval 5m at 2024-02-27 19:00:24.280487 not crossover open
+2024-02-27 19:00:24,295 - prediction_process - INFO - Processing GBPUSD for interval 5m at 2024-02-27 19:00:24.295019 not crossover open
+2024-02-27 19:00:24,354 - prediction_process - INFO - Processing EURUSD for interval 30m at 2024-02-27 19:00:24.354392 not crossover open
+2024-02-27 19:00:24,458 - prediction_process - INFO - Processing USDCHF for interval 30m at 2024-02-27 19:00:24.458517 not crossover open
+2024-02-27 19:00:24,642 - prediction_process - INFO - Processing GBPUSD for interval 30m at 2024-02-27 19:00:24.642344 not crossover open
+2024-02-27 19:00:28,065 - prediction_process - INFO - Processing AUDUSD for interval 5m at 2024-02-27 19:00:28.065053 crossover : not buy  open
+2024-02-27 19:00:28,290 - prediction_process - INFO - Processing EURUSD for interval 15m at 2024-02-27 19:00:28.290303 crossover : not buy  open
+2024-02-27 19:00:28,296 - prediction_process - INFO - Processing GBPUSD for interval 15m at 2024-02-27 19:00:28.296831 crossover : not buy  open
+2024-02-27 19:00:28,687 - prediction_process - INFO - Processing AUDUSD for interval 30m at 2024-02-27 19:00:28.687110 crossunder : not sell  open
+2024-02-27 19:00:30,744 - prediction_process - INFO - Processing USDCAD for interval 1h at 2024-02-27 19:00:30.744711 not crossover open
+2024-02-27 19:00:30,793 - prediction_process - INFO - Processing USDCHF for interval 1h at 2024-02-27 19:00:30.793317 not crossover open
+2024-02-27 19:00:30,866 - prediction_process - INFO - Processing AUDUSD for interval 1h at 2024-02-27 19:00:30.866100 not crossover open
+2024-02-27 19:00:30,868 - prediction_process - INFO - Processing GBPUSD for interval 1h at 2024-02-27 19:00:30.868100 not crossover open

@@ -119,7 +119,7 @@ const insertBotInAccountMT = async (req, res) => {
     });
 
     if (existingBot) {
-      return res.status(400).json({ message: "Bot with this model_name already exists." });
+      return res.status(400).json({ message: "Bot with this symbol already exists." });
     }
 
     const result = await collection_account_mt.updateOne({

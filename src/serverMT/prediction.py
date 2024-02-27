@@ -202,10 +202,10 @@ def run_tasks(currency_pairs, intervals_to_run):
 
 def task_prediction() :
     now = datetime.now()
-    mt.initialize(login= int(login), password= password, server = server)
     intervals_to_run = [interval for interval, check in interval_checks.items() if check(now)]
     if intervals_to_run:
         time.sleep(0.5)
+        mt.initialize(login= int(login), password= password, server = server)
         print(f"Running tasks for intervals {intervals_to_run} at {now}")
         logger_prediction.info(f"Running tasks for intervals {intervals_to_run} at {now}")
         run_tasks(currency_pairs, intervals_to_run)

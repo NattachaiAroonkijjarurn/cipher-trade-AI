@@ -423,7 +423,7 @@ const DeleteBotModal = ({isOpen, onClose, user_id, username_mt5 ,model_name, wal
         <h2 className="text-lg text-white text-center mb-10">
           Are you sure you want to delete bot <span className="text-blue-500">{model_name}</span> ?
         </h2>
-        {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+        {errorMessage && <div className="text-red-500 text-sm mt-4 text-center" >{errorMessage}</div>}
         <div className="flex justify-between flex-col md:flex-row gap-2">
           <button 
             className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
@@ -614,7 +614,7 @@ const AddWalletModal  = ({isOpen, onClose, setWallet, user_id}) => {
                 onChange={(e) => setserverMT(e.target.value)}
               />
             </div>
-            {errorMessage && <div className="text-red-500 text-sm mt-2 text-center">{errorMessage}</div>}
+            {errorMessage && <div className="text-red-500 text-sm mt-4 text-center">{errorMessage}</div>}
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
               <button 
                 className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
@@ -757,7 +757,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
           <h2 className="text-lg text-white text-center mb-10">
             Are you sure you want to delete account <span className="text-blue-500">{wallet.name_account}</span>?
           </h2>
-          {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+          {errorMessage && <div className="text-red-500 text-sm mt-4 text-center" >{errorMessage}</div>}
           <div className="flex justify-between flex-col md:flex-row gap-2">
             <button 
               className="bg-red-500 rounded-lg p-2 px-5 text-white hover:bg-red-400 active:bg-red-600" 
@@ -869,7 +869,7 @@ const EditWallet = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) => 
                     onChange={(e) => setServerMT(e.target.value)}
                   />
                 </div>
-                {errorMessage && <div className="text-red-500 text-sm mt-2 text-center" >{errorMessage}</div>}
+                {errorMessage && <div className="text-red-500 text-sm mt-4 text-center" >{errorMessage}</div>}
                 <div className="flex-col md:flex-row gap-2">
                 <button type = "button" onClick={() => setShowConfirmDelete(true)} className="bg-red-500 w-full text-white rounded-lg mt-5 py-2 hover:bg-red-400 active:bg-red-600">Delete</button>
                 </div>
@@ -998,7 +998,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
   if (!isOpen) return null;
   return (
     <div className={`flex fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${animation === "modal-exit-active" ? "modal-background-exit" : "modal-background-enter-active"}`}>
-      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-2/6 max-w-4xl ${animation}`}
+      <div className={`bg-[#1E2226] p-4 rounded-lg shadow-lg space-y-3 w-2/4 xl:w-1/4 max-w-4xl ${animation}`}
         style={{
           maxHeight: '90vh',
           overflowY: 'auto'
@@ -1098,7 +1098,7 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
                 />
               </div>
             </div>
-            {errorMessage && <div className="text-red-500 text-sm mt-2 text-center">{errorMessage}</div>}
+            {errorMessage && <div className="text-red-500 text-sm mt-4 text-center">{errorMessage}</div>}
             <div className="flex justify-between mt-10 flex-col md:flex-row gap-2">
               <button
                 type="button" 
