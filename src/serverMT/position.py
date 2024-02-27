@@ -76,10 +76,10 @@ def formSetPosition(username_mt5 = None, order_id=None ,symbol= None,  status= '
         "positions.$.status_payment" : False
     }
 
-def getRequest(mt, currency_pair, type,lotsize, user_id , price, tp, sl, magic) :
+def getRequest(mt, symbol, type,lotsize, user_id , price, tp, sl, magic) :
     request = {
         "action": mt.TRADE_ACTION_DEAL,
-        "symbol": currency_pair,
+        "symbol": symbol,
         "volume": lotsize,
         "type": mt.ORDER_TYPE_BUY if type == 'buy' else mt.ORDER_TYPE_SELL,
         "price": price,
@@ -133,7 +133,7 @@ def takeAndStop(time) :
     
     
 
-def calculate_profit(currency_pair, side, volume, price_open, price_current, exchange_rate=None):
+def calculate_profit(currency_pair, side, volume, price_open, price_close, exchange_rate=None):
     # Determine pip location and pip value for the currency pair
     if 'JPY' in currency_pair:
         pip_location = 0.01
@@ -141,7 +141,7 @@ def calculate_profit(currency_pair, side, volume, price_open, price_current, exc
         pip_location = 0.0001
     
     # Calculate the number of pips moved
-    pips_moved = (price_current - price_open) / pip_location
+    pips_moved = (price_close - price_open) / pip_location
     
     # For a sell order, the calculation is inverted
     if not side:
@@ -150,7 +150,7 @@ def calculate_profit(currency_pair, side, volume, price_open, price_current, exc
     # Calculate point value in USD for a standard lot
     if currency_pair[:3] == 'USD' or currency_pair[-3:] == 'USD':
         if currency_pair[:3] == 'USD':  # USD is the base currency
-            point_value_per_lot = 100000 * pip_location / (exchange_rate if exchange_rate else price_current)
+            point_value_per_lot = 100000 * pip_location / (exchange_rate if exchange_rate else price_close)
         else:  # USD is the quote currency
             point_value_per_lot = 10  # Assumes a standard lot and USD as the quote currency
     else:  # Cross currency pairs
@@ -247,6 +247,7 @@ def checkPrediction(account_mt, username_mt5, user_id, password_mt5, server) :
         if not positions: 
             collection_position.update_one({"user_id" : user_id}, {'$push': {'positions': formPushPosition(username_mt5=username_mt5,symbol=model_name)}})
             logger_position.info(f"Processing at {datetime.now()} push new position to collection positions of username_mt5 : {username_mt5}, symbol : {model_name}, user_id : {user_id}")
+            continue
         
         
         # position is open now?
@@ -264,7 +265,7 @@ def checkPrediction(account_mt, username_mt5, user_id, password_mt5, server) :
         pred_sell = pred_doc.get('predict_sell')
         
         if marketOpen == 'close' : continue
-        if pred_buy != 'buy' or pred_sell != 'sell' : continue
+        if pred_buy != 'buy' and pred_sell != 'sell' : continue
         
         # buy condition
         if pred_buy == 'buy' :
@@ -299,26 +300,24 @@ def buyCondition(user_id, username_mt5, password_mt5, server, model_name,timefra
     sl, tp = takeAndStop(timeframe)
     price = mt.symbol_info_tick(model_name).ask
     
-    request = getRequest(mt=mt, model_name=model_name, lotsize=lotsize, type='buy',user_id=user_id, price=price, tp=tp, sl=sl, magic=magic)
+    request = getRequest(mt=mt, symbol=model_name, lotsize=lotsize, type='buy',user_id=user_id, price=price, tp=tp, sl=sl, magic=magic)
     result = mt.order_send(request)
     comment = result.comment
     position_history = mt.history_orders_get(position=result.order)
     
-    mt.shutdown()
-    return position_history, comment
+    return result, position_history, comment
 
 def sellCondition(user_id, username_mt5, password_mt5, server, model_name,timeframe, lotsize, magic) :
     mt.initialize(login= username_mt5, password= password_mt5, server = server)
     sl, tp = takeAndStop(timeframe)
     price = mt.symbol_info_tick(model_name).ask
     
-    request = getRequest(mt=mt, model_name=model_name, lotsize=lotsize, type='sell',user_id=user_id, price=price, tp=tp, sl=sl, magic=magic)
+    request = getRequest(mt=mt, symbol=model_name, lotsize=lotsize, type='sell',user_id=user_id, price=price, tp=tp, sl=sl, magic=magic)
     result = mt.order_send(request)
     comment = result.comment
     position_history = mt.history_orders_get(position=result.order)
     
-    mt.shutdown()
-    return position_history, comment
+    return result, position_history, comment
 
 def logBuyCondition(result, comment, side ,user_id, username_mt5, position_history) :
     if result.retcode != mt.TRADE_RETCODE_DONE :
@@ -330,16 +329,13 @@ def logBuyCondition(result, comment, side ,user_id, username_mt5, position_histo
     
 
 def task_position(account_mt):
-    try:
-        user_id = account_mt.get("user_id")
-        username_mt5 = account_mt.get("username_mt5")
-        password_mt5 = account_mt.get("password_mt5")
-        server = account_mt.get("server")
-        
-        poss = collection_position.find_one({"user_id": user_id})
-        if poss:
-            checkClosePosition(poss=poss, user_id=user_id, username_mt5=username_mt5, password_mt5=password_mt5, server=server)
-        checkPrediction(account_mt=account_mt, username_mt5=username_mt5, user_id=user_id, password_mt5=password_mt5, server=server)
-    except Exception as e:
-        logger_position.error(f"An error occurred: {e}")
+    user_id = account_mt.get("user_id")
+    username_mt5 = account_mt.get("username_mt5")
+    password_mt5 = account_mt.get("password_mt5")
+    server = account_mt.get("server")
+    
+    poss = collection_position.find_one({"user_id": user_id})
+    if poss:
+        checkClosePosition(poss=poss, user_id=user_id, username_mt5=username_mt5, password_mt5=password_mt5, server=server)
+    checkPrediction(account_mt=account_mt, username_mt5=username_mt5, user_id=user_id, password_mt5=password_mt5, server=server)
 
