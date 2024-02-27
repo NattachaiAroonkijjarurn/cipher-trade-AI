@@ -25,7 +25,7 @@ const sendAccountMT = async (req, res) => {
     newAccountMT.username_mt5 = parseInt(newAccountMT.username_mt5, 10);
 
     if (isNaN(newAccountMT.username_mt5)) {
-      return res.status(400).json({ message: "Username MT5 must be a numeric value." });
+      return res.status(400).json({ message: "Username MT5 must be a numeric value.", username_mt5 : newAccountMT.username_mt5});
     }
 
     const existingBotNameAccount = await collection_account_mt.findOne({
@@ -104,11 +104,11 @@ const deleteAccountMT = async (req, res) => {
 
 const insertBotInAccountMT = async (req, res) => {
   try {
-    const { user_id, username_mt5, bot } = req.body;
-    const model_name = bot.model_name;
+    const { user_id, username_mt5, bots } = req.body;
+    const model_name = bots.model_name;
 
-    bot.lotsize = parseFloat(bot.lotsize)
-    if (isNaN(bot.lotsize)) {
+    bots.lotsize = parseFloat(bots.lotsize)
+    if (isNaN(bots.lotsize)) {
       return res.status(400).json({ message: "lot size must be a numeric value."});
     }
 
@@ -119,14 +119,14 @@ const insertBotInAccountMT = async (req, res) => {
     });
 
     if (existingBot) {
-      return res.status(400).json({ message: "Bot with this model_name already exists." });
+      return res.status(400).json({ message: "Bot with this symbol already exists." });
     }
 
     const result = await collection_account_mt.updateOne({
         "username_mt5": username_mt5,
         "user_id": user_id
       }, {
-        $push: { "bots": bot }
+        $push: { "bots": bots }
       }
     );
     if (result.modifiedCount === 0) {
@@ -157,10 +157,31 @@ const deleteBotInAccountMT = async (req, res) => {
   }
 };
 
+const updateDetailAccount = async (req, res) => {
+  try {
+    const user_id = req.session.user_id
+    const { username_mt5 ,leverage, company, balance} = req.body
+    const result = await collection_account_mt.updateOne({
+      "username_mt5" : username_mt5,
+      "user_id" : user_id,
+    }, {
+      "$set" : {
+        "leverage" : leverage,
+        "company" : company,
+        "balance" : balance
+      }
+    })
+    res.status(200).json({message : "update detail account mt success"})
+  } catch (error) {
+    res.status(500).json({ message: "Can't update detail account mt", error: error });
+  }
+}
+
 export {getAccountMT, 
   sendAccountMT, 
   changeStatusBot, 
   editAccountMT, 
   deleteAccountMT, 
   insertBotInAccountMT, 
-  deleteBotInAccountMT}
+  deleteBotInAccountMT,
+  updateDetailAccount}
