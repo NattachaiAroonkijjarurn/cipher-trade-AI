@@ -1,3 +1,5 @@
 /node_modules
 src/serverMT/__pycache__
 src/serverMT/function/__pycache__
+
+src/serverMT/log

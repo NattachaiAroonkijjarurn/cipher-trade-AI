@@ -11,3 +11,6 @@ mongo_url = os.environ.get('DATABASE')
 
 version = '1.0.24.2.14'
 new_path = 'src/serverMT/'
+
+folder_name = new_path + 'log'
+os.makedirs(folder_name, exist_ok=True)
