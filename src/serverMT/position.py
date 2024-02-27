@@ -310,7 +310,7 @@ def buyCondition(user_id, username_mt5, password_mt5, server, model_name,timefra
 def sellCondition(user_id, username_mt5, password_mt5, server, model_name,timeframe, lotsize, magic) :
     mt.initialize(login= username_mt5, password= password_mt5, server = server)
     sl, tp = takeAndStop(timeframe)
-    price = mt.symbol_info_tick(model_name).ask
+    price = mt.symbol_info_tick(model_name).bid
     
     request = getRequest(mt=mt, symbol=model_name, lotsize=lotsize, type='sell',user_id=user_id, price=price, tp=tp, sl=sl, magic=magic)
     result = mt.order_send(request)
