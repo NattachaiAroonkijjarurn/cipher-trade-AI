@@ -1029,7 +1029,6 @@ const AddBotsModal = ({ isOpen, onClose, wallet, user_id, setWallet, wallets}) =
                 >
                   <option value="" className="text-blue-200" disabled selected>Select Symbol</option>
                   <option value="EURUSD">EURUSD</option>
-                  <option value="USDJPY">USDJPY</option>
                   <option value="GBPUSD">GBPUSD</option>
                   <option value="USDCHF">USDCHF</option>
                   <option value="USDCAD">USDCAD</option>
