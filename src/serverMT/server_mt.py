@@ -11,7 +11,6 @@ CORS(app)  # Enables CORS for all routes
 mt5_path = "C:/Program Files/MetaTrader 5/terminal64.exe"
 mt5_process_name = "terminal64.exe"
 
-        
 def kill_mt5():
     for proc in psutil.process_iter():
         if proc.name() == mt5_process_name:

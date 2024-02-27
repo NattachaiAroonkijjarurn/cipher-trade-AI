@@ -1,2 +1,3 @@
 /node_modules
-/serverPython/__pycache__
+src/serverMT/__pycache__
+src/serverMT/function/__pycache__
