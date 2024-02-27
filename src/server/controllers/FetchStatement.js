@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import { client } from "../db.js";
 import fs from "fs/promises";
 import path from "path";
+import { TRANS_URL } from '../../config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,7 +93,7 @@ const uploadPayment = async (req, res) => {
         await adminCommission_collection.insertOne({
             "user_id": user.user_id,
             "paid_date": paidDate,
-            "transcript_image": process.env.TRANS_URL + newFileName,
+            "transcript_image": TRANS_URL + newFileName,
             "payment_status": "checking"
         });
 

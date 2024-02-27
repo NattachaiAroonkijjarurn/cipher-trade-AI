@@ -106,7 +106,7 @@ const Statements = () => {
     const [dateRange, setDateRange] = useState([
       {
         startDate: set(startOfYear(new Date()), { hours: 0, minutes: 0, seconds: 0 }),
-        endDate: addYears(new Date(), 2),
+        endDate: addYears(new Date(), 1),
         key: 'selection'
       }
     ]);

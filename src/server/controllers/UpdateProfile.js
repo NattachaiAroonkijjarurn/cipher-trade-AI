@@ -4,6 +4,7 @@ import { client } from "../db.js";
 import fs from "fs/promises";
 import path from "path";
 import bcrypt from 'bcrypt';
+import { PROFILE_URL } from '../../config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,7 +39,7 @@ const updateProfile = async (req, res) => {
             }
 
             // Update the user document with the new profileImage_path
-            await user_collection.updateOne({ "username": username }, { $set: { "profileImage_path": process.env.PROFILE_URL + newFileName } });
+            await user_collection.updateOne({ "username": username }, { $set: { "profileImage_path": PROFILE_URL + newFileName } });
         }
 
         // Update other user information
