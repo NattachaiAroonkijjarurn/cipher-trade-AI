@@ -73,6 +73,7 @@ const AITradingBot = () => {
     fetchData();
   }, []);
   
+  
 
   // Control DropDown in and out
   useEffect(() => {
