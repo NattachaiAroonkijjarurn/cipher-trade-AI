@@ -13,6 +13,7 @@ def process():
     except Exception as e:
         print("An error occurred server trade :", e)
     
+    
 if __name__ == "__main__":
     while True:
         process()
