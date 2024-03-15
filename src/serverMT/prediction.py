@@ -16,6 +16,10 @@ from function.function_indicator import GetAll_indicator
 from database import collection_predict, collection_models
 from config import login, password, server, version, new_path
 
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
 logger_prediction = logging.getLogger('prediction_process')
 logger_prediction.setLevel(logging.INFO)  # Adjust level as needed
 file_handler_prediction = logging.FileHandler(new_path + 'log/prediction_process_log.log')
@@ -121,9 +125,9 @@ def process_currency_pair(currency, interval):
         x_test_reshaped = np.reshape(x_test_scaled, (x_test_scaled.shape[0], 1, x_test_scaled.shape[1]))
         y_pred = model.predict(x_test_reshaped)
         
-        query = {"model_name" : f'{state}_{currency}{interval}'}
+        query = {"model_name" : f'{currency}{interval}'}
         document = collection_models.find_one(query)
-        threshold = document.get('threshold') if document else None
+        threshold = document.get('threshold_buy') if document else None
 
         y_pred = np.squeeze(y_pred)
         y_binary = (y_pred >= threshold).astype(int)
@@ -156,11 +160,11 @@ def process_currency_pair(currency, interval):
         data = dropColumn(data)
         x_test_scaled = scaler.transform(data)
         x_test_reshaped = np.reshape(x_test_scaled, (x_test_scaled.shape[0], 1, x_test_scaled.shape[1]))
-        y_pred = model_buy.predict(x_test_reshaped)
+        y_pred = model.predict(x_test_reshaped)
         
-        query = {"model_name" : f'{state}_{currency}{interval}'}
+        query = {"model_name" : f'{currency}{interval}'}
         document = collection_models.find_one(query)
-        threshold = document.get('threshold') if document else None
+        threshold = document.get('threshold_sell') if document else None
 
         y_pred = np.squeeze(y_pred)
         y_binary = (y_pred >= threshold).astype(int)
